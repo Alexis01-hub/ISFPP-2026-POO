@@ -99,10 +99,10 @@ public class Viaje {
      * @param usuario usuario que cancela el viaje. Debe ser el cliente o el conductor.
      * @param motivo motivo de la cancelacion. No puede ser nulo ni vacio.
      */
-    public void calcelar(LocalDateTime fechaHora, Usuario usuario, String motivo){
+    public void cancelar(LocalDateTime fechaHora, Usuario usuario, String motivo){
         EstadoViaje estado = estadoActual();
         if(estado == null || estado == EstadoViaje.FINALIZADO || estado == EstadoViaje.CANCELADO || estado == EstadoViaje.RECHAZADO){
-            throw new TransicionViajeInvalidaException("No se puede cancelar un viaje que no estado "+ estado);
+            throw new TransicionViajeInvalidaException("No se puede cancelar un viaje en estado "+ estado);
         }
         if (motivo == null || motivo.isBlank()){
             throw new IllegalArgumentException("El motivo de cancelacion no puede ser nulo o vacio");
