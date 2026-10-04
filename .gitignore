@@ -32,3 +32,4 @@ bin/
 ## PROJECT SPECIFIC ##
 #ignora .idea/ #
 .idea/
+*.iml
