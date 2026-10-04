@@ -7,7 +7,7 @@ public class Usuario {
     private String nombre;
     private String telefono;
     private String email;
-    private RolUsuario rolUsuario;
+    private RolUsuario rolActivo;
     private Cliente cliente;
     private Conductor conductor;
 
@@ -21,7 +21,7 @@ public class Usuario {
         this.nombre = nombre;
         this.telefono = telefono;
         this.email = email;
-        this.rolUsuario = RolUsuario.CLIENTE; // Por defecto, el rol es CLIENTE
+        this.rolActivo = RolUsuario.CLIENTE; // Por defecto, el rol es CLIENTE
         this.cliente = new Cliente(); // Inicializamos el cliente por defecto
         this.conductor = null; // Inicializamos el conductor como null
     }
@@ -45,6 +45,7 @@ public class Usuario {
         if(rolNuevo == RolUsuario.CONDUCTOR && conductor == null){
             throw new UsuarioNoEsConductorException("El usuario no esta dado de alta como conductor");
         }
+        this.rolActivo = rolNuevo;
     }
 
     public String getNombre() {
@@ -59,8 +60,8 @@ public class Usuario {
         return email;
     }
 
-    public RolUsuario getRolUsuario() {
-        return rolUsuario;
+    public RolUsuario getRolActivo() {
+        return rolActivo;
     }
 
     public Cliente getCliente() {
