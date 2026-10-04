@@ -1,0 +1,56 @@
+package movilidaddigital.datos;
+
+import movilidaddigital.modelo.RectanguloGeografico;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+public final class Configuracion {
+    private Configuracion() {
+    }
+
+    public static RectanguloGeografico cargarZonaPermitida() {
+        Properties propiedades = cargarProperties("config.properties");
+
+        return new RectanguloGeografico(
+                leerDouble(propiedades, "latitud1"),
+                leerDouble(propiedades, "longitud1"),
+                leerDouble(propiedades, "latitud2"),
+                leerDouble(propiedades, "longitud2"));
+    }
+
+    private static Properties cargarProperties(String nombreRecurso) {
+        Properties propiedades = new Properties();
+
+        try (InputStream entrada = Configuracion.class
+                .getClassLoader()
+                .getResourceAsStream(nombreRecurso)) {
+            if (entrada == null) {
+                throw new IllegalStateException(
+                        "No se encontro el recurso: " + nombreRecurso);
+            }
+            propiedades.load(entrada);
+            return propiedades;
+        } catch (IOException excepcion) {
+            throw new IllegalStateException(
+                    "No se pudo leer el recurso: " + nombreRecurso, excepcion);
+        }
+    }
+
+    private static double leerDouble(Properties propiedades, String clave) {
+        String valor = propiedades.getProperty(clave);
+        if (valor == null || valor.isBlank()) {
+            throw new IllegalStateException(
+                    "Falta la propiedad obligatoria: " + clave);
+        }
+
+        try {
+            return Double.parseDouble(valor.trim());
+        } catch (NumberFormatException excepcion) {
+            throw new IllegalStateException(
+                    "La propiedad " + clave + " no es numerica: " + valor,
+                    excepcion);
+        }
+    }
+}
