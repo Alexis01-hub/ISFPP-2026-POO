@@ -12,7 +12,7 @@ public class Cliente {
         this.viajes = new ArrayList<>();
     }
 
-    private boolean enViaje(){
+    public boolean enViaje(){
         for( Viaje viaje : viajes){
             EstadoViaje estado = viaje.estadoActual();
             if (estado == EstadoViaje.SOLICITADO ||
