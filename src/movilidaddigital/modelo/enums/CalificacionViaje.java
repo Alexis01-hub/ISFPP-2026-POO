@@ -1,12 +1,12 @@
 package movilidaddigital.modelo.enums;
 
 public enum CalificacionViaje {
-    EXCELENTE(0),
+    EXCELENTE(5),
     BUENO(3),
     REGULAR(2),
     MALO(1),
     MUY_BUENO(4),
-    NO_CALIFICADO(5);
+    NO_CALIFICADO(0);
 
     private final int valor;
 
