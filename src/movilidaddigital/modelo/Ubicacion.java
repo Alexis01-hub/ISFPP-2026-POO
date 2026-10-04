@@ -23,16 +23,16 @@ public class Ubicacion {
      *
      * @return distancia en kilometros
      */
-    public double distanciaEnKilometros(Ubicacion otra) {
-        if (otra == null) {
-            throw new IllegalArgumentException("La otra ubicacion no puede ser null");
+    public double calcularDistancia(Ubicacion ubicacion) {
+        if (ubicacion == null) {
+            throw new IllegalArgumentException("La ubicacion no puede ser null");
         }
 
         final double radioTierraKm = 6371.0;
-        double diferenciaLatitud = Math.toRadians(otra.latitud - latitud);
-        double diferenciaLongitud = Math.toRadians(otra.longitud - longitud);
+        double diferenciaLatitud = Math.toRadians(ubicacion.latitud - latitud);
+        double diferenciaLongitud = Math.toRadians(ubicacion.longitud - longitud);
         double latitudInicial = Math.toRadians(latitud);
-        double latitudFinal = Math.toRadians(otra.latitud);
+        double latitudFinal = Math.toRadians(ubicacion.latitud);
 
         double haversine = Math.pow(Math.sin(diferenciaLatitud / 2), 2)
                 + Math.cos(latitudInicial) * Math.cos(latitudFinal)
