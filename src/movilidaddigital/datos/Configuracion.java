@@ -20,6 +20,18 @@ public final class Configuracion {
                 leerDouble(propiedades, "longitud2"));
     }
 
+    public static String archivoUsuarios() {
+        return leerTexto(cargarProperties("config.properties"), "usuario");
+    }
+
+    public static String archivoServicios() {
+        return leerTexto(cargarProperties("config.properties"), "servicio");
+    }
+
+    public static String archivoVehiculos() {
+        return leerTexto(cargarProperties("config.properties"), "vehiculo");
+    }
+
     private static Properties cargarProperties(String nombreRecurso) {
         Properties propiedades = new Properties();
 
@@ -36,6 +48,15 @@ public final class Configuracion {
             throw new IllegalStateException(
                     "No se pudo leer el recurso: " + nombreRecurso, excepcion);
         }
+    }
+
+    private static String leerTexto(Properties propiedades, String clave) {
+        String valor = propiedades.getProperty(clave);
+        if (valor == null || valor.isBlank()) {
+            throw new IllegalStateException(
+                    "Falta la propiedad obligatoria: " + clave);
+        }
+        return valor.trim();
     }
 
     private static double leerDouble(Properties propiedades, String clave) {
