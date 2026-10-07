@@ -1,6 +1,7 @@
 package movilidaddigital.datos;
 
 import movilidaddigital.modelo.RectanguloGeografico;
+import movilidaddigital.modelo.enums.TipoVehiculo;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +31,29 @@ public final class Configuracion {
 
     public static String archivoVehiculos() {
         return leerTexto(cargarProperties("config.properties"), "vehiculo");
+    }
+
+    /**
+     * Velocidad promedio (km/h) usada para estimar el tiempo de un viaje.
+     * Se lee de velocidadAuto / velocidadMoto; si no estan en el archivo, usa 30 y 35.
+     */
+    public static double velocidadPromedioKmH(TipoVehiculo tipo) {
+        Properties propiedades = cargarProperties("config.properties");
+        String clave = tipo == TipoVehiculo.MOTO ? "velocidadMoto" : "velocidadAuto";
+        double porDefecto = tipo == TipoVehiculo.MOTO ? 35 : 30;
+        String valor = propiedades.getProperty(clave);
+        if (valor == null || valor.isBlank()) {
+            return porDefecto;
+        }
+        try {
+            double v = Double.parseDouble(valor.trim());
+            if (v <= 0) {
+                throw new IllegalStateException("La propiedad " + clave + " debe ser mayor que 0");
+            }
+            return v;
+        } catch (NumberFormatException e) {
+            throw new IllegalStateException("La propiedad " + clave + " no es numerica: " + valor, e);
+        }
     }
 
     private static Properties cargarProperties(String nombreRecurso) {
