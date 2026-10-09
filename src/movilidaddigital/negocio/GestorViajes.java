@@ -63,16 +63,28 @@ public class GestorViajes {
             throw new VehiculoNoCompatibleException("El vehiculo activo no es compatible con el servicio " + viaje.getServicio().getNombre());
         }
         viaje.aceptar(fecha, conductor); // si otro ya lo acepto, falla aca y el conductor no cambia de estado
-        conductor.getConductor().setEstadoConductor(EstadoConductor.VIAJE_A_ORIGEN);
+        conductor.getConductor().setEstadoConductor(EstadoConductor.VIAJE_A_ORIGEN); // si llego aca, el conductor gano el viaje y pasa a VIAJE_A_ORIGEN
     }
 
-    /** El cliente sube: el conductor pasa a VIAJE_A_DESTINO. */
+    /**
+     * El pasajero sube al vehiculo y el viaje pasa a INICIADO; el conductor queda en VIAJE_A_DESTINO.
+     * @param viaje viaje que se inicia
+     * @param fecha fecha y hora en que el viaje inicia
+     */
     public synchronized void iniciar(Viaje viaje, LocalDateTime fecha) {
         viaje.iniciar(fecha);
         viaje.getConductor().getConductor().setEstadoConductor(EstadoConductor.VIAJE_A_DESTINO);
     }
 
-    /** Termina el viaje con las calificaciones mutuas; el conductor queda DISPONIBLE. */
+    /**
+     * El viaje llega al destino y pasa a FINALIZADO; el conductor queda DISPONIBLE.
+     *
+     * @param viaje viaje que se finaliza
+     * @param fecha fecha y hora en que el viaje finaliza
+     * @param calificacionConductor calificacion que recibe el conductor por parte del cliente
+     * @param calificacionCliente calificacion que recibe el cliente por parte del conductor
+     * @return costo final del viaje, calculado como distancia origen-destino y minutos entre INICIADO y FINALIZADO
+     */
     public synchronized double finalizar(Viaje viaje, LocalDateTime fecha,
                                          CalificacionViaje calificacionConductor, CalificacionViaje calificacionCliente) {
         viaje.finalizar(fecha, calificacionConductor, calificacionCliente);
@@ -81,8 +93,15 @@ public class GestorViajes {
     }
 
     /**
-     * Cancela el viaje y devuelve lo que se cobra por la cancelacion.
-     * Si cancela el conductor, queda FUERA_DE_SERVICIO; si cancela el cliente, el conductor queda DISPONIBLE.
+     * El viaje pasa a CANCELADO; el conductor queda DISPONIBLE si cancela el cliente, o FUERA_DE_SERVICIO si cancela el conductor.
+     *
+     * @param viaje viaje que se cancela
+     * @param quien usuario que cancela el viaje (puede ser el cliente o el conductor)
+     * @param motivo motivo de la cancelacion en texto libre
+     * @param fecha fecha y hora en que se cancela el viaje
+     * @return costo de cancelacion: 0 si cancela el conductor o si nadie habia aceptado todavia.
+     * Si cancela el cliente con el conductor ya en camino, se cobra el tramo que el conductor alcanzo a recorrer
+     * (tiempo entre ACEPTADO y CANCELADO a la velocidad promedio), sin tarifa base: precioKm * km + precioMinuto * minutos.
      */
     public synchronized double cancelar(Viaje viaje, Usuario quien, String motivo, LocalDateTime fecha) {
         viaje.cancelar(fecha, quien, motivo);
@@ -95,7 +114,11 @@ public class GestorViajes {
         return costo;
     }
 
-    /** Nadie acepto a tiempo: el viaje pasa a RECHAZADO. */
+    /**
+     * El viaje pasa a RECHAZADO si ningun conductor lo acepta dentro del tiempo limite; el conductor queda DISPONIBLE.
+     * @param viaje viaje que se rechaza
+     * @param fecha fecha y hora en que se rechaza el viaje
+     */
     public synchronized void rechazarPorTimeout(Viaje viaje, LocalDateTime fecha) {
         viaje.rechazar(fecha);
     }
@@ -129,7 +152,9 @@ public class GestorViajes {
         double minutos = minutosEntre(fechaDe(viaje, EstadoViaje.INICIADO), fechaDe(viaje, EstadoViaje.FINALIZADO));
         return viaje.getServicio().calcularCosto(km, minutos);
     }
-
+    /**
+     * Devuelve la fecha y hora en que el viaje paso a un estado dado, o null si nunca paso por ese estado.
+     */
     private LocalDateTime fechaDe(Viaje viaje, EstadoViaje estado) {
         for (RegistroViaje r : viaje.getRegistroViaje()) {
             if (r.getEstadoViaje() == estado) {
@@ -139,6 +164,12 @@ public class GestorViajes {
         return null;
     }
 
+    /**
+     * Calcula la cantidad de minutos entre dos fechas y horas.
+     * @param desde hora de inicio
+     * @param hasta hora de fin
+     * @return cantidad de minutos entre desde y hasta, como double (puede ser fraccionario)
+     */
     private double minutosEntre(LocalDateTime desde, LocalDateTime hasta) {
         return Duration.between(desde, hasta).toSeconds() / 60.0;
     }

@@ -1,4 +1,4 @@
-package movilidaddigital;
+package movilidaddigital.aplicacion;
 
 import movilidaddigital.datos.CargadorDatos;
 import movilidaddigital.modelo.Ubicacion;

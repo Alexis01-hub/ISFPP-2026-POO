@@ -17,7 +17,8 @@ public class Vehiculo {
      * crea el vehiculo con su primer tipo de servicio (tiene que tener al menos uno)
      * si presta un segundo tipo, se agrega con agregarTipoServicio()
      */
-    public Vehiculo(String patente, String modelo, int capacidadPasajeros, CategoriaVehiculo categoriaVehiculo, TipoVehiculo tipoVehiculo, TipoServicio tipoServicio) {
+    public Vehiculo(String patente, String modelo, int capacidadPasajeros, TipoVehiculo tipoVehiculo,
+                    CategoriaVehiculo categoriaVehiculo, TipoServicio tipoServicio) {
         this.patente = patente;
         this.modelo = modelo;
         this.capacidadPasajeros = capacidadPasajeros;

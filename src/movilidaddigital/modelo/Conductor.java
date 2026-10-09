@@ -75,9 +75,10 @@ public class Conductor {
     }
 
     public void setVehiculoActivo(Vehiculo vehiculoActivo) {
-        if(!vehiculos.contains(vehiculoActivo)){
-            throw new IllegalArgumentException("El vehiculo no pertenece al conductor");
-        }
-        this.vehiculoActivo = vehiculoActivo;
+
+    }
+
+    public void setEstado(EstadoConductor estadoConductor) {
+        this.estadoConductor = estadoConductor;
     }
 }

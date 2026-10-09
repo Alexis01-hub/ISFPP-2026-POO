@@ -11,7 +11,10 @@ public class Servicio {
     private TipoVehiculo tipoVehiculo;
     private TipoServicio tipoServicio;
 
-    public Servicio(String nombre, double tarifaBase, double precioKm, double precioMinuto, CategoriaVehiculo categoriaVehiculo, TipoVehiculo tipoVehiculo, TipoServicio tipoServicio) {
+    public Servicio(String nombre, double tarifaBase, double precioKm, double precioMinuto,
+                    TipoVehiculo tipoVehiculo,
+                    CategoriaVehiculo categoriaVehiculo,
+                    TipoServicio tipoServicio) {
         this.nombre = nombre;
         this.tarifaBase = tarifaBase;
         this.precioKm = precioKm;
@@ -51,5 +54,9 @@ public class Servicio {
 
     public double calcularCosto(double km, double minutos){
         return tarifaBase + (precioKm * km) + (precioMinuto * minutos);
+    }
+
+    public void setCategoriaVehiculo(CategoriaVehiculo categoriaVehiculo) {
+        this.categoriaVehiculo = categoriaVehiculo;
     }
 }

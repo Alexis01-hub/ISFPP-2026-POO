@@ -1,6 +1,6 @@
 package movilidaddigital.excepciones;
 
-public class UsuarioNoEsConductorException extends RuntimeException {
+public class UsuarioNoEsConductorException extends IllegalStateException {
 
     private static final long serialVersionUID = 1L; // Agrega un identificador de versión para la serialización
 

@@ -4,7 +4,8 @@ import movilidaddigital.excepciones.TransicionViajeInvalidaException;
 import movilidaddigital.modelo.enums.CalificacionViaje;
 import movilidaddigital.modelo.enums.EstadoViaje;
 import movilidaddigital.modelo.enums.RolUsuario;
-
+import movilidaddigital.excepciones.VehiculoNoCompatibleException;
+import movilidaddigital.modelo.enums.EstadoConductor;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -34,70 +35,102 @@ public class Viaje {
     }
 
     /**
-     * El cliente pide el viaje. queda SOLICITADO y se agrega a la lista de viajes del cliente.
-     * @param fechaHora fecha y hora en que el cliente solicita el viaje
+     * Solicita el viaje, registrando la fecha y hora en que se solicita y pasando a estado SOLICITADO.
+     * @param fechaHora fecha y hora en que se solicita el viaje
      */
-    public void solicitar(LocalDateTime fechaHora){
-        if(estadoActual() != null){
-            throw new TransicionViajeInvalidaException("El viaje ya fue solicitado");
+    public void solicitar(LocalDateTime fechaHora) {
+        if (estadoActual() != null) {
+            throw new TransicionViajeInvalidaException(
+                    "El viaje ya fue solicitado");
         }
+
+        if (cliente.getCliente().enViaje()) {
+            throw new TransicionViajeInvalidaException(
+                    "El cliente ya tiene un viaje activo");
+        }
+
         registrar(fechaHora, EstadoViaje.SOLICITADO);
         cliente.getCliente().agregarViaje(this);
     }
 
     /**
-     * El conductor acepta el viaje (solo si esta SOLICITADO)
-     * El viaje usa el vehiculo activo del conductor y se agrega a la lista de viajes del conductor.
-     * @param fechaHora fecha y hora en que el conductor acepta el viaje
-     * @param conductor usuario que acepta el viaje. Debe ser un conductor.
+     * Acepta el viaje que se encuentra en estado SOLICITADO, pasando a estado ACEPTADO.
+     * @param fechaHora fecha y hora en que se acepta el viaje
+     * @param conductor usuario que acepta el viaje (debe ser un conductor)
      */
-    public void aceptar(LocalDateTime fechaHora, Usuario conductor){
-        if (estadoActual() != EstadoViaje.SOLICITADO){
-            throw new TransicionViajeInvalidaException("Solo se puede aceptar un viaje SOLICITADO");
+    public void aceptar(LocalDateTime fechaHora, Usuario conductor) {
+        if (estadoActual() != EstadoViaje.SOLICITADO) {
+            throw new TransicionViajeInvalidaException(
+                    "Solo se puede aceptar un viaje SOLICITADO");
         }
-        if (conductor.getConductor() == null){
-            throw new TransicionViajeInvalidaException("El usuario no es conductor");
+
+        if (conductor.getConductor() == null) {
+            throw new TransicionViajeInvalidaException(
+                    "El usuario no es conductor");
         }
+
+        Vehiculo vehiculoConductor =
+                conductor.getConductor().getVehiculoActivo();
+
+        if (vehiculoConductor.getTipoVehiculo() != servicio.getTipoVehiculo()
+                || vehiculoConductor.getCategoriaVehiculo().getValor()
+                < servicio.getCategoriaVehiculo().getValor()
+                || !vehiculoConductor.getTipoServicios()
+                .contains(servicio.getTipoServicio())) {
+            throw new VehiculoNoCompatibleException(
+                    "El vehículo no es compatible con el servicio");
+        }
+
         this.conductor = conductor;
-        this.vehiculo = conductor.getConductor().getVehiculoActivo();
+        this.vehiculo = vehiculoConductor;
         registrar(fechaHora, EstadoViaje.ACEPTADO);
         conductor.getConductor().agregarViaje(this);
+        conductor.getConductor().setEstado(
+                EstadoConductor.VIAJE_A_ORIGEN);
     }
 
     /**
-     * El pasajero sube al vehiculo (o se entrega la carga). Solo si esta ACEPTADO.
-     * @param fechaHora fecha y hora en que el viaje inicia
+     * Inicia el viaje que se encuentra en estado ACEPTADO, pasando a estado INICIADO.
+     * @param fechaHora fecha y hora en que se inicia el viaje
      */
-    public void iniciar(LocalDateTime fechaHora){
-        if (estadoActual() != EstadoViaje.ACEPTADO){
-            throw new TransicionViajeInvalidaException("Solo se puede iniciar un viaje ACEPTADO");
+    public void iniciar(LocalDateTime fechaHora) {
+        if (estadoActual() != EstadoViaje.ACEPTADO) {
+            throw new TransicionViajeInvalidaException(
+                    "Solo se puede iniciar un viaje ACEPTADO");
         }
+
         registrar(fechaHora, EstadoViaje.INICIADO);
+        conductor.getConductor().setEstado(
+                EstadoConductor.VIAJE_A_DESTINO);
     }
 
     /**
-     * El viaje llega al destino. Solo si esta INICIADO.
-     * Cada uno califica al otro.
-     * @param fechaHora fecha y hora en que el viaje finaliza
-     * @param calificacionConductor calificacion que recibe el conductor por parte del cliente
-     * @param calificacionCliente calificacion que recibe el cliente por parte del conductor
+     * finaliza el viaje que se encuentra en estado INICIADO, pasando a estado FINALIZADO.
+     * @param fechaHora fecha y hora en que se finaliza el viaje
+     * @param calificacionCliente calificacion del cliente sobre el viaje
+     * @param calificacionConductor calificacion del conductor sobre el viaje
      */
-    public void finalizar(LocalDateTime fechaHora, CalificacionViaje calificacionConductor, CalificacionViaje calificacionCliente){
-        if (estadoActual() != EstadoViaje.INICIADO){
-            throw new TransicionViajeInvalidaException("Solo se puede finalizar un viaje INICIADO");
+    public void finalizar(LocalDateTime fechaHora,
+                          CalificacionViaje calificacionCliente,
+                          CalificacionViaje calificacionConductor) {
+        if (estadoActual() != EstadoViaje.INICIADO) {
+            throw new TransicionViajeInvalidaException(
+                    "Solo se puede finalizar un viaje INICIADO");
         }
-        this.calificacionConductor = calificacionConductor;
+
         this.calificacionCliente = calificacionCliente;
+        this.calificacionConductor = calificacionConductor;
         registrar(fechaHora, EstadoViaje.FINALIZADO);
+
+        conductor.getConductor().setEstado(
+                EstadoConductor.DISPONIBLE);
     }
 
     /**
-     * Cancela el viaje. Lo puede hacer el cliente o el conductor.
-     * salvo que el viaje ya haya terminado
-     * queda guardado quien cancelo y el motivo. nadie califica.
+     * Cancela el viaje que se encuentra en estado SOLICITADO, ACEPTADO o INICIADO, pasando a estado CANCELADO.
      * @param fechaHora fecha y hora en que se cancela el viaje
-     * @param usuario usuario que cancela el viaje. Debe ser el cliente o el conductor.
-     * @param motivo motivo de la cancelacion. No puede ser nulo ni vacio.
+     * @param usuario usuario que cancela el viaje (debe ser el cliente o el conductor)
+     * @param motivo motivo de la cancelacion en texto libre
      */
     public void cancelar(LocalDateTime fechaHora, Usuario usuario, String motivo){
         EstadoViaje estado = estadoActual();
@@ -116,16 +149,27 @@ public class Viaje {
         }
         this.motivoCancelacion = motivo;
         registrar(fechaHora, EstadoViaje.CANCELADO);
+
+        if (conductor != null) {
+            if (rolCancela == RolUsuario.CLIENTE) {
+                conductor.getConductor().setEstado(EstadoConductor.DISPONIBLE);
+            } else {
+                conductor.getConductor().setEstado(EstadoConductor.FUERA_DE_SERVICIO);
+            }
+        }
     }
 
     /**
-     * Ningun conductor acepto a tiempo: el viaje pasa a rechazado. Solo si esta SOLICITADO.
-     * @param fechaHora fecha y hora en que el viaje es rechazado
+     * rechaza el viaje que se encuentra en estado SOLICITADO, pasando a estado RECHAZADO.
+     *
+     * @param fechaHora fecha y hora en que se rechaza el viaje
      */
-    public void rechazar(LocalDateTime fechaHora){
-        if  (estadoActual() != EstadoViaje.SOLICITADO){
-            throw new TransicionViajeInvalidaException("Solo se puede rechazar un viaje SOLICITADO");
+    public void rechazar(LocalDateTime fechaHora) {
+        if (estadoActual() != EstadoViaje.SOLICITADO) {
+            throw new TransicionViajeInvalidaException(
+                    "Solo se puede rechazar un viaje SOLICITADO");
         }
+
         registrar(fechaHora, EstadoViaje.RECHAZADO);
     }
 

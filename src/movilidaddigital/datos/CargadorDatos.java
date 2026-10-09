@@ -94,10 +94,8 @@ public class CargadorDatos {
                     continue;
                 }
 
-                // OJO: en el archivo el tipo de vehiculo va antes que la categoria,
-                // pero el constructor de Servicio los recibe al reves.
                 servicios.add(servicios.size(), new Servicio(nombre, tarifaBase, precioKm, precioMinuto,
-                        categoria, tipoVehiculo, tipoServicio));
+                        tipoVehiculo, categoria, tipoServicio));
             } catch (IllegalArgumentException e) {
                 advertir(archivo, linea, e.getMessage() + ", se ignora la linea");
             }
@@ -144,7 +142,7 @@ public class CargadorDatos {
 
                 // OJO: en el archivo el tipo de vehiculo va antes que la categoria,
                 // pero el constructor de Vehiculo los recibe al reves.
-                Vehiculo vehiculo = new Vehiculo(patente, modelo, capacidad, categoria, tipoVehiculo, primerServicio);
+                Vehiculo vehiculo = new Vehiculo(patente, modelo, capacidad, tipoVehiculo, categoria, primerServicio);
                 if (campos.length == 7) {
                     vehiculo.agregarTipoServicio(leerEnum(TipoServicio.class, campos[6], "TipoServicio"));
                 }

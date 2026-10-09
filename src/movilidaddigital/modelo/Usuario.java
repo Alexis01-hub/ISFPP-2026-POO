@@ -2,6 +2,7 @@ package movilidaddigital.modelo;
 
 import movilidaddigital.excepciones.UsuarioNoEsConductorException;
 import movilidaddigital.modelo.enums.RolUsuario;
+import movilidaddigital.modelo.enums.EstadoConductor;
 
 public class Usuario {
     private String nombre;
@@ -37,14 +38,32 @@ public class Usuario {
     }
 
     /**
-     * cambia de rol con que usa la aplicacion.
-     * para pasar a rol de conductor, el usuario debe estar dado de alta como conductor.
-     * @param rolNuevo rol que el usuario desea asumir. Puede ser CLIENTE o CONDUCTOR.
+     * Cambia el rol activo del usuario. Si se cambia a CONDUCTOR, verifica que el usuario tenga un objeto Conductor asociado y que esté fuera de servicio.
+     * Si se cambia a CLIENTE, pone al conductor en estado FUERA_DE_SERVICIO.
+     * @param rolNuevo el nuevo rol activo que se desea asignar al usuario
      */
-    public void cambiarRolActivo(RolUsuario rolNuevo){
-        if(rolNuevo == RolUsuario.CONDUCTOR && conductor == null){
-            throw new UsuarioNoEsConductorException("El usuario no esta dado de alta como conductor");
+    public void cambiarRolActivo(RolUsuario rolNuevo) {
+        if (rolNuevo == RolUsuario.CONDUCTOR) {
+            if (conductor == null) {
+                throw new UsuarioNoEsConductorException(
+                        "El usuario no esta dado de alta como conductor");
+            }
+
+            if (cliente.enViaje()) {
+                throw new IllegalStateException(
+                        "No se puede cambiar a conductor durante un viaje activo");
+            }
+
+            if (conductor.getEstadoConductor() != EstadoConductor.FUERA_DE_SERVICIO) {
+                throw new IllegalStateException(
+                        "El conductor debe estar fuera de servicio para cambiar de rol");
+            }
         }
+
+        if (rolNuevo == RolUsuario.CLIENTE && conductor != null) {
+            conductor.setEstado(EstadoConductor.FUERA_DE_SERVICIO);
+        }
+
         this.rolActivo = rolNuevo;
     }
 
