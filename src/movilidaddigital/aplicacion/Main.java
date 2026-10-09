@@ -33,8 +33,8 @@ public class Main {
         }
         System.out.println("Usuarios cargados: " + gestorUsuarios.getUsuarios().size());
 
-        Usuario paula = gestorUsuarios.buscarPorEmail("paula.vazquez@email.com");
-        Usuario juan = gestorUsuarios.buscarPorEmail("juan.perez@email.com");
+        Usuario paula = gestorUsuarios.buscarPorEmail("paula.vazquez@email.com"); // cliente
+        Usuario juan = gestorUsuarios.buscarPorEmail("juan.perez@email.com"); // conductor
         LocalDateTime ahora = LocalDateTime.of(2026, 10, 7, 10, 0);
 
         // 2. Paula pide un viaje: ve las alternativas
