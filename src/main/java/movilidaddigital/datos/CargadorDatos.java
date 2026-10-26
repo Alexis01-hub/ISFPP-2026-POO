@@ -1,11 +1,11 @@
-package datos;
+package movilidaddigital.datos;
 
-import modelo.Servicio;
-import modelo.Usuario;
-import modelo.Vehiculo;
-import modelo.enums.CategoriaVehiculo;
-import modelo.enums.TipoServicio;
-import modelo.enums.TipoVehiculo;
+import movilidaddigital.modelo.Servicio;
+import movilidaddigital.modelo.Usuario;
+import movilidaddigital.modelo.Vehiculo;
+import movilidaddigital.modelo.enums.CategoriaVehiculo;
+import movilidaddigital.modelo.enums.TipoServicio;
+import movilidaddigital.modelo.enums.TipoVehiculo;
 import movilidaddigital.datastructures.ChainHashMap;
 import movilidaddigital.datastructures.Map;
 

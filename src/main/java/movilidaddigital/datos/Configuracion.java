@@ -1,7 +1,7 @@
-package datos;
+package movilidaddigital.datos;
 
-import modelo.RectanguloGeografico;
-import modelo.enums.TipoVehiculo;
+import movilidaddigital.modelo.RectanguloGeografico;
+import movilidaddigital.modelo.enums.TipoVehiculo;
 
 import java.io.IOException;
 import java.io.InputStream;
