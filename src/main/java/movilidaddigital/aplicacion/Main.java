@@ -1,19 +1,19 @@
-package aplicacion;
+package movilidaddigital.aplicacion;
 
-import datos.CargadorDatos;
-import datos.RepositorioDatos;
-import modelo.Ubicacion;
-import modelo.Usuario;
-import modelo.Vehiculo;
-import modelo.Viaje;
-import modelo.enums.CalificacionViaje;
-import modelo.enums.CategoriaVehiculo;
-import modelo.enums.TipoServicio;
-import negocio.Alternativa;
-import negocio.Despachador;
-import negocio.GestorServicios;
-import negocio.GestorUsuarios;
-import negocio.GestorViajes;
+import movilidaddigital.datos.CargadorDatos;
+import movilidaddigital.datos.RepositorioDatos;
+import movilidaddigital.modelo.Ubicacion;
+import movilidaddigital.modelo.Usuario;
+import movilidaddigital.modelo.Vehiculo;
+import movilidaddigital.modelo.Viaje;
+import movilidaddigital.modelo.enums.CalificacionViaje;
+import movilidaddigital.modelo.enums.CategoriaVehiculo;
+import movilidaddigital.modelo.enums.TipoServicio;
+import movilidaddigital.negocio.Alternativa;
+import movilidaddigital.negocio.Despachador;
+import movilidaddigital.negocio.GestorServicios;
+import movilidaddigital.negocio.GestorUsuarios;
+import movilidaddigital.negocio.GestorViajes;
 
 import java.util.List;
 import movilidaddigital.datastructures.Map;
