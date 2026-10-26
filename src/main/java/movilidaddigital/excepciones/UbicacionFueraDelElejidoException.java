@@ -1,4 +1,4 @@
-package excepciones;
+package movilidaddigital.excepciones;
 
 public class UbicacionFueraDelElejidoException extends RuntimeException {
 

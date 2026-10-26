@@ -1,4 +1,4 @@
-package excepciones;
+package movilidaddigital.excepciones;
 
 public class EstadoConductorInvalidoException extends RuntimeException {
     private static final long serialVersionUID = 1L;
