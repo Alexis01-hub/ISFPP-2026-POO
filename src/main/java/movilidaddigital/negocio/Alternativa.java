@@ -1,7 +1,7 @@
-package negocio;
+package movilidaddigital.negocio;
 
-import modelo.Servicio;
-import modelo.Ubicacion;
+import movilidaddigital.modelo.Servicio;
+import movilidaddigital.modelo.Ubicacion;
 
 /**
  * Una opcion que se le muestra al cliente antes de pedir el viaje:

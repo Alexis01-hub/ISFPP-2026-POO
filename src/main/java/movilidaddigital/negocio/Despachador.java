@@ -1,11 +1,11 @@
-package negocio;
+package movilidaddigital.negocio;
 
-import modelo.Conductor;
-import modelo.Servicio;
-import modelo.Usuario;
-import modelo.Vehiculo;
-import modelo.Viaje;
-import modelo.enums.EstadoConductor;
+import movilidaddigital.modelo.Conductor;
+import movilidaddigital.modelo.Servicio;
+import movilidaddigital.modelo.Usuario;
+import movilidaddigital.modelo.Vehiculo;
+import movilidaddigital.modelo.Viaje;
+import movilidaddigital.modelo.enums.EstadoConductor;
 
 import java.util.ArrayList;
 import java.util.List;

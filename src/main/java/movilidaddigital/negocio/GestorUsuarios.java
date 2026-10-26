@@ -1,13 +1,13 @@
-package negocio;
+package movilidaddigital.negocio;
 
-import excepciones.EstadoConductorInvalidoException;
-import excepciones.UsuarioNoEsConductorException;
-import excepciones.UsuarioYaRegistradoException;
-import modelo.Conductor;
-import modelo.Usuario;
-import modelo.Vehiculo;
-import modelo.enums.CategoriaVehiculo;
-import modelo.enums.EstadoConductor;
+import movilidaddigital.excepciones.EstadoConductorInvalidoException;
+import movilidaddigital.excepciones.UsuarioNoEsConductorException;
+import movilidaddigital.excepciones.UsuarioYaRegistradoException;
+import movilidaddigital.modelo.Conductor;
+import movilidaddigital.modelo.Usuario;
+import movilidaddigital.modelo.Vehiculo;
+import movilidaddigital.modelo.enums.CategoriaVehiculo;
+import movilidaddigital.modelo.enums.EstadoConductor;
 
 import java.util.ArrayList;
 import movilidaddigital.datastructures.ChainHashMap;
