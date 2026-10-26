@@ -1,8 +1,8 @@
-package modelo;
+package movilidaddigital.modelo;
 
-import excepciones.UsuarioNoEsConductorException;
-import modelo.enums.RolUsuario;
-import modelo.enums.EstadoConductor;
+import movilidaddigital.excepciones.UsuarioNoEsConductorException;
+import movilidaddigital.modelo.enums.RolUsuario;
+import movilidaddigital.modelo.enums.EstadoConductor;
 
 public class Usuario {
     private String nombre;

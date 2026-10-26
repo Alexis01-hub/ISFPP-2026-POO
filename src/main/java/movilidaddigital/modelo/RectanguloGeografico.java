@@ -1,4 +1,4 @@
-package modelo;
+package movilidaddigital.modelo;
 
 public class RectanguloGeografico {
     private final double latitudMinima;

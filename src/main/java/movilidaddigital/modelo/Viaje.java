@@ -1,11 +1,11 @@
-package modelo;
+package movilidaddigital.modelo;
 
-import excepciones.TransicionViajeInvalidaException;
-import modelo.enums.CalificacionViaje;
-import modelo.enums.EstadoViaje;
-import modelo.enums.RolUsuario;
-import excepciones.VehiculoNoCompatibleException;
-import modelo.enums.EstadoConductor;
+import movilidaddigital.excepciones.TransicionViajeInvalidaException;
+import movilidaddigital.modelo.enums.CalificacionViaje;
+import movilidaddigital.modelo.enums.EstadoViaje;
+import movilidaddigital.modelo.enums.RolUsuario;
+import movilidaddigital.excepciones.VehiculoNoCompatibleException;
+import movilidaddigital.modelo.enums.EstadoConductor;
 import java.time.LocalDateTime;
 import java.util.*;
 

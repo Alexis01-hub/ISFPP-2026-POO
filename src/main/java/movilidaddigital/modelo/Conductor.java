@@ -1,7 +1,7 @@
-package modelo;
+package movilidaddigital.modelo;
 
-import modelo.enums.CategoriaVehiculo;
-import modelo.enums.EstadoConductor;
+import movilidaddigital.modelo.enums.CategoriaVehiculo;
+import movilidaddigital.modelo.enums.EstadoConductor;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,9 +1,8 @@
-package modelo;
+package movilidaddigital.modelo;
 
-import main.modelo.enums.*;
-import modelo.enums.CategoriaVehiculo;
-import modelo.enums.TipoServicio;
-import modelo.enums.TipoVehiculo;
+import movilidaddigital.modelo.enums.CategoriaVehiculo;
+import movilidaddigital.modelo.enums.TipoServicio;
+import movilidaddigital.modelo.enums.TipoVehiculo;
 
 public class Servicio {
     private String nombre;

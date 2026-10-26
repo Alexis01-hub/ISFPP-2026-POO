@@ -1,6 +1,6 @@
-package modelo;
+package movilidaddigital.modelo;
 
-import modelo.enums.EstadoViaje;
+import movilidaddigital.modelo.enums.EstadoViaje;
 
 import java.util.ArrayList;
 import java.util.List;

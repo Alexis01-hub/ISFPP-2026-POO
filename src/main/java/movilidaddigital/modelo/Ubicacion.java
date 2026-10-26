@@ -1,4 +1,4 @@
-package modelo;
+package movilidaddigital.modelo;
 
 public class Ubicacion {
     private final double latitud;

@@ -1,4 +1,4 @@
-package modelo.enums;
+package movilidaddigital.modelo.enums;
 
 public enum TipoServicio {
     PASAJEROS,
