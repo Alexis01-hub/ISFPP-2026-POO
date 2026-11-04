@@ -3,6 +3,7 @@ package movilidaddigital.datos.dao;
 import java.util.Locale;
 import movilidaddigital.datos.Configuracion;
 import movilidaddigital.datos.dao.txt.TxtDAOFactory;
+import movilidaddigital.datos.dao.bd.BdDAOFactory;
 
 /**
  * Punto unico de acceso a la fabrica de persistencia.
@@ -16,15 +17,26 @@ public final class DAOLoader {
     }
 
     public static DAOFactory getFactory() {
-        return Holder.INSTANCE;
+        return getFactory(Configuracion.origenDatos());
+    }
+
+    public static DAOFactory getFactory(String origen) {
+        return crearFactory(origen);
     }
 
     private static DAOFactory crearFactory() {
-        String origen = Configuracion.origenDatos().toUpperCase(Locale.ROOT);
+        return crearFactory(Configuracion.origenDatos());
+    }
+
+    private static DAOFactory crearFactory(String origenTexto) {
+        String origen = origenTexto.trim().toUpperCase(Locale.ROOT);
+        if ("BD".equals(origen) || "SQL".equals(origen)) {
+            return new BdDAOFactory(Configuracion.baseDatosUrl(),
+                    Configuracion.baseDatosUsuario(), Configuracion.baseDatosPassword(),
+                    Configuracion.baseDatosSchema());
+        }
         if (!"TXT".equals(origen)) {
-            throw new IllegalStateException(
-                    "El origen '" + origen + "' aun no tiene implementacion. "
-                            + "Cuando se definan las tablas se debe agregar la BdDAOFactory.");
+            throw new IllegalStateException("Origen de datos no soportado: " + origen);
         }
         return new TxtDAOFactory(Configuracion.archivoServicios(),
                 Configuracion.archivoVehiculos(), Configuracion.archivoUsuarios());

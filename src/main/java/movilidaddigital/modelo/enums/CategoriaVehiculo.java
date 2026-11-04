@@ -1,9 +1,9 @@
 package movilidaddigital.modelo.enums;
 
 public enum CategoriaVehiculo {
-    ESTANDAR(1),
-    CONFORT(2),
-    PREMIUM(3);
+    ESTANDAR(0), // Si en BD 0 es estándar, cámbialo a 0. Si 0 es otra categoría, defínela aquí.
+    CONFORT(1),
+    PREMIUM(2);
 
     private final int valor;
 
@@ -11,12 +11,16 @@ public enum CategoriaVehiculo {
         this.valor = valor;
     }
 
-    /**
-     *
-     * @return valor numerico de la categoria del vehiculo (1 a 3)
-     */
     public int getValor() {
         return valor;
     }
 
+    public static CategoriaVehiculo desdeCodigo(int valor) {
+        for (CategoriaVehiculo cat : values()) {
+            if (cat.valor == valor) {
+                return cat;
+            }
+        }
+        throw new IllegalArgumentException("No existe CategoriaVehiculo con valor: " + valor);
+    }
 }

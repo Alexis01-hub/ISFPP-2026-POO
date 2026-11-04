@@ -37,6 +37,26 @@ public final class Configuracion {
         return cargarProperties("config.properties").getProperty("origen.datos", "TXT").trim();
     }
 
+    public static String baseDatosUrl() {
+        return propiedadBaseDatos("url");
+    }
+
+    public static String baseDatosUsuario() {
+        return propiedadBaseDatos("usr");
+    }
+
+    public static String baseDatosPassword() {
+        return propiedadBaseDatos("pwd");
+    }
+
+    public static String baseDatosSchema() {
+        return propiedadBaseDatos("schema");
+    }
+
+    private static String propiedadBaseDatos(String clave) {
+        return leerTexto(cargarProperties("config.properties"), clave);
+    }
+
     /**
      * Velocidad promedio (km/h) usada para estimar el tiempo de un viaje.
      * Se lee de velocidadAuto / velocidadMoto; si no estan en el archivo, usa 30 y 35.
