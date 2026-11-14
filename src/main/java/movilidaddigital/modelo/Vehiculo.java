@@ -1,65 +1,80 @@
 package movilidaddigital.modelo;
 
-import movilidaddigital.modelo.enums.CategoriaVehiculo;
-import movilidaddigital.modelo.enums.TipoServicio;
-import movilidaddigital.modelo.enums.TipoVehiculo;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Vehiculo {
     private String patente;
     private String modelo;
     private int capacidadPasajeros;
-    private CategoriaVehiculo categoriaVehiculo;
+    private Ubicacion ubicacion;
     private TipoVehiculo tipoVehiculo;
-    private List<TipoServicio> tipoServicios;
+    private CategoriaVehiculo categoriaVehiculo;
+    private Set<TipoServicio> tipoServicios;
 
-    /**
-     * crea el vehiculo con su primer tipo de servicio (tiene que tener al menos uno)
-     * si presta un segundo tipo, se agrega con agregarTipoServicio()
-     */
-    public Vehiculo(String patente, String modelo, int capacidadPasajeros, TipoVehiculo tipoVehiculo,
-                    CategoriaVehiculo categoriaVehiculo, TipoServicio tipoServicio) {
+    public Vehiculo(String patente, String modelo, int capacidadPasajeros, TipoVehiculo tipoVehiculo, CategoriaVehiculo categoriaVehiculo, TipoServicio tipoServicio) {
         this.patente = patente;
         this.modelo = modelo;
         this.capacidadPasajeros = capacidadPasajeros;
-        this.categoriaVehiculo = categoriaVehiculo;
         this.tipoVehiculo = tipoVehiculo;
-        this.tipoServicios = new ArrayList<>();
-        this.tipoServicios.add(tipoServicio); // Agrega el tipo de servicio al listado
+        this.categoriaVehiculo = categoriaVehiculo;
+        tipoServicios = new HashSet<TipoServicio>();
+        tipoServicios.add(tipoServicio);
     }
 
-    /**
-     * agrega un tipo de servicio al listado de tipos de servicios del vehiculo. si el vehiculo ya lo tiene, no lo repite.
-     */
     public void agregarTipoServicio(TipoServicio tipoServicio) {
-        if (!tipoServicios.contains(tipoServicio)) {
-            tipoServicios.add(tipoServicio);
-        }
+        tipoServicios.add(tipoServicio);
     }
 
     public String getPatente() {
         return patente;
     }
 
+    public void setPatente(String patente) {
+        this.patente = patente;
+    }
+
     public String getModelo() {
         return modelo;
+    }
+
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
     }
 
     public int getCapacidadPasajeros() {
         return capacidadPasajeros;
     }
 
-    public CategoriaVehiculo getCategoriaVehiculo() {
-        return categoriaVehiculo;
+    public void setCapacidadPasajeros(int capacidadPasajeros) {
+        this.capacidadPasajeros = capacidadPasajeros;
     }
 
     public TipoVehiculo getTipoVehiculo() {
         return tipoVehiculo;
     }
 
-    public List<TipoServicio> getTipoServicios() {
-        return tipoServicios;
+    public void setTipoVehiculo(TipoVehiculo tipoVehiculo) {
+        this.tipoVehiculo = tipoVehiculo;
+    }
+
+    public CategoriaVehiculo getCategoriaVehiculo() {
+        return categoriaVehiculo;
+    }
+
+    public void setCategoriaVehiculo(CategoriaVehiculo categoriaVehiculo) {
+        this.categoriaVehiculo = categoriaVehiculo;
+    }
+
+    public Set<TipoServicio> getTipoServicios() {
+        return new HashSet<TipoServicio>(tipoServicios);
+    }
+
+    public Ubicacion getUbicacion() {
+        return ubicacion;
+    }
+
+    public void setUbicacion(Ubicacion ubicacion) {
+        this.ubicacion = ubicacion;
     }
 }

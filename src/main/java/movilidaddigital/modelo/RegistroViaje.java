@@ -1,16 +1,15 @@
 package movilidaddigital.modelo;
 
-import movilidaddigital.modelo.enums.EstadoViaje;
 
 import java.time.LocalDateTime;
 
 public class RegistroViaje {
-    private LocalDateTime fechaHora;
     private EstadoViaje estadoViaje;
+    private LocalDateTime fechaHora;
 
-    public RegistroViaje(LocalDateTime fechaHora, EstadoViaje estadoViaje) {
-        this.fechaHora = fechaHora;
+    public RegistroViaje(EstadoViaje estadoViaje, LocalDateTime fechaHora) {
         this.estadoViaje = estadoViaje;
+        this.fechaHora = fechaHora;
     }
 
     public EstadoViaje getEstadoViaje() {

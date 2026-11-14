@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="movilidaddigital.interfaz.controller.LoginController" stylesheets="@app.css" styleClass="root">
+    <center>
+        <VBox maxWidth="430" spacing="18" alignment="CENTER" BorderPane.alignment="CENTER">
+            <padding><Insets top="35" right="45" bottom="35" left="45"/></padding>
+            <Label text="MOVILIDAD DIGITAL" styleClass="title"/>
+            <Label text="Seleccioná un usuario para ingresar" styleClass="subtitle"/>
+            <ComboBox fx:id="usuarioCombo" promptText="Elegir usuario" maxWidth="Infinity"/>
+            <Label text="Ingresar como:"/>
+            <ComboBox fx:id="rolCombo" maxWidth="Infinity"/>
+            <Button text="Ingresar" onAction="#iniciarSesion" defaultButton="true" maxWidth="Infinity"/>
+            <Label fx:id="errorLabel" wrapText="true" styleClass="error"/>
+        </VBox>
+    </center>
+</BorderPane>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>html,body,#mapa{height:100%;margin:0} #mapa{min-height:500px}</style>
+</head>
+<body>
+<div id="mapa"></div>
+<script>
+  const mapa = L.map('mapa').setView([0, 0], 2);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {maxZoom: 19, attribution: '&copy; OpenStreetMap'}).addTo(mapa);
+  let capa = L.layerGroup().addTo(mapa);
+  let modoSeleccion = null;
+  window.configurarCentro = (latitud, longitud, zoom) => {
+    mapa.setView([latitud, longitud], zoom);
+  };
+  const MAX_DISTANCIA_CALLE_METROS = 1000;
+  window.activarSeleccion = tipo => { modoSeleccion = tipo; };
+  async function rutaEntre(origen, destino) {
+    const url = 'https://router.project-osrm.org/route/v1/driving/'
+      + origen[1] + ',' + origen[0] + ';' + destino[1] + ',' + destino[0]
+      + '?overview=full&geometries=geojson';
+    const respuesta = await fetch(url);
+    if (!respuesta.ok) throw new Error('No se pudo consultar el servicio de rutas');
+    const datos = await respuesta.json();
+    if (datos.code !== 'Ok' || !datos.routes || !datos.routes.length) {
+      throw new Error('No hay una calle transitable entre los puntos');
+    }
+    return datos.routes[0].geometry.coordinates.map(punto => [punto[1], punto[0]]);
+  }
+
+  async function validarPunto(punto) {
+    const url = 'https://router.project-osrm.org/nearest/v1/driving/'
+      + punto[1] + ',' + punto[0] + '?number=1';
+    const respuesta = await fetch(url);
+    if (!respuesta.ok) throw new Error('No se pudo validar el punto');
+    const datos = await respuesta.json();
+    const cercano = datos.waypoints && datos.waypoints[0];
+    if (datos.code !== 'Ok' || !cercano
+        || cercano.distance > MAX_DISTANCIA_CALLE_METROS) {
+      throw new Error('El punto debe estar sobre tierra y cerca de una calle');
+    }
+    return cercano.location;
+  }
+
+  window.mostrarRutas = async datos => {
+    capa.clearLayers();
+    try {
+      const acercamiento = await rutaEntre(datos.conductor, datos.origen);
+      const traslado = await rutaEntre(datos.origen, datos.destino);
+      L.polyline(acercamiento, {color:'#1763c0', weight:5}).addTo(capa);
+      L.polyline(traslado, {color:'#149566', weight:5}).addTo(capa);
+      L.marker(datos.conductor).addTo(capa).bindPopup('Conductor');
+      L.marker(datos.origen).addTo(capa).bindPopup('Origen');
+      L.marker(datos.destino).addTo(capa).bindPopup('Destino');
+      mapa.fitBounds(L.latLngBounds(acercamiento.concat(traslado)), {padding:[25,25]});
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+  mapa.on('click', evento => {
+    if (modoSeleccion && window.javaBridge) {
+      const tipo = modoSeleccion;
+      modoSeleccion = null;
+      const punto = [evento.latlng.lat, evento.latlng.lng];
+      validarPunto(punto).then(cercano => {
+        window.javaBridge.seleccionarPunto(tipo, cercano[1], cercano[0]);
+      }).catch(error => {
+        alert(error.message);
+        modoSeleccion = tipo;
+      });
+    }
+  });
+</script>
+</body>
+</html>

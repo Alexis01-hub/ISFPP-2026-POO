@@ -1,12 +1,11 @@
 package movilidaddigital.negocio;
 import movilidaddigital.datos.Configuracion;
 import movilidaddigital.excepciones.UbicacionFueraDelElejidoException;
-import movilidaddigital.modelo.RectanguloGeografico;
 import movilidaddigital.modelo.Servicio;
 import movilidaddigital.modelo.Ubicacion;
-import movilidaddigital.modelo.enums.CategoriaVehiculo;
-import movilidaddigital.modelo.enums.TipoServicio;
-import movilidaddigital.modelo.enums.TipoVehiculo;
+import movilidaddigital.modelo.CategoriaVehiculo;
+import movilidaddigital.modelo.TipoServicio;
+import movilidaddigital.modelo.TipoVehiculo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +13,8 @@ import java.util.List;
 /** Conoce los servicios y arma las alternativas (distancia, tiempo y costo) para un recorrido. */
 public class GestorServicios {
     private final List<Servicio> servicios;
-    private final RectanguloGeografico zona;
-
     public GestorServicios(List<Servicio> servicios) {
         this.servicios = servicios;
-        this.zona = Configuracion.cargarZonaPermitida();
     }
 
     public List<Servicio> getServicios() {
@@ -39,7 +35,8 @@ public class GestorServicios {
         if (origen == null || destino == null) {
             throw new IllegalArgumentException("Origen y destino son obligatorios");
         }
-        if (!origen.estaDentro(zona) || !destino.estaDentro(zona)) {
+        if (!Configuracion.ubicacionDentroZona(origen)
+                || !Configuracion.ubicacionDentroZona(destino)) {
             throw new UbicacionFueraDelElejidoException("El origen y el destino deben estar dentro del ejido");
         }
         double km = origen.calcularDistancia(destino);

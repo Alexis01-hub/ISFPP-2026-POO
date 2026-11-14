@@ -1,95 +1,93 @@
 package movilidaddigital.modelo;
 
-import movilidaddigital.excepciones.UsuarioNoEsConductorException;
-import movilidaddigital.modelo.enums.RolUsuario;
-import movilidaddigital.modelo.enums.EstadoConductor;
-
+/**
+ * Usuario del sistema, con perfil de cliente y, opcionalmente, de conductor.
+ */
 public class Usuario {
+
     private String nombre;
     private String telefono;
     private String email;
-    private RolUsuario rolActivo;
+
     private Cliente cliente;
     private Conductor conductor;
 
-    /**
-     *  registra un usuario, con el rol de cliente y sin conductor asociado.
-     * @param nombre
-     * @param telefono
-     * @param email
-     */
+    private RolUsuario rolActivo;
+
     public Usuario(String nombre, String telefono, String email) {
+        super();
         this.nombre = nombre;
         this.telefono = telefono;
         this.email = email;
-        this.rolActivo = RolUsuario.CLIENTE; // Por defecto, el rol es CLIENTE
-        this.cliente = new Cliente(); // Inicializamos el cliente por defecto
-        this.conductor = null; // Inicializamos el conductor como null
+        this.cliente = new Cliente();
+        this.rolActivo = RolUsuario.CLIENTE;
     }
 
-    /**
-     * Da de alta al usuario como conductor, asociando una licencia y un vehículo.
-     */
-    public void altaConductor(String licencia, Vehiculo vehiculo){
-        if (conductor != null){
-            throw new IllegalStateException("El usuario ya es conductor");
-        }
-        this.conductor = new Conductor(licencia, vehiculo);
+    public void altaConductor(String licenciaConducir, Vehiculo vehiculo) {
+        this.conductor = new Conductor(licenciaConducir, vehiculo);
     }
 
-    /**
-     * Cambia el rol activo del usuario. Si se cambia a CONDUCTOR, verifica que el usuario tenga un objeto Conductor asociado y que esté fuera de servicio.
-     * Si se cambia a CLIENTE, pone al conductor en estado FUERA_DE_SERVICIO.
-     * @param rolNuevo el nuevo rol activo que se desea asignar al usuario
-     */
     public void cambiarRolActivo(RolUsuario rolNuevo) {
         if (rolNuevo == RolUsuario.CONDUCTOR) {
-            if (conductor == null) {
-                throw new UsuarioNoEsConductorException(
-                        "El usuario no esta dado de alta como conductor");
-            }
-
-            if (cliente.enViaje()) {
+            if (this.conductor == null)
                 throw new IllegalStateException(
-                        "No se puede cambiar a conductor durante un viaje activo");
-            }
+                        "No se puede cambiar a conductor porque el usuario no está dado de alta como tal.");
 
-            if (conductor.getEstadoConductor() != EstadoConductor.FUERA_DE_SERVICIO) {
+            if (this.conductor.getEstadoConductor() != EstadoConductor.FUERA_DE_SERVICIO)
                 throw new IllegalStateException(
-                        "El conductor debe estar fuera de servicio para cambiar de rol");
-            }
+                        "Solo se puede cambiar al rol de conductor si se encuentra actualmente FUERA_SERVICIO.");
+
+            if (this.getCliente().enViaje())
+                throw new IllegalStateException(
+                        "No se puede cambiar de rol porque actualmente tenés un viaje activo como cliente.");
+
+
         }
 
-        if (rolNuevo == RolUsuario.CLIENTE && conductor != null) {
-            conductor.setEstado(EstadoConductor.FUERA_DE_SERVICIO);
-        }
+        if (rolNuevo == RolUsuario.CLIENTE) {
+            if (this.getCliente().enViaje())
+                throw new IllegalStateException(
+                        "No se puede cambiar de rol porque actualmente tenés un viaje activo como cliente.");
 
+            if (this.conductor != null)
+                this.conductor.setEstado(EstadoConductor.FUERA_DE_SERVICIO);
+
+        }
         this.rolActivo = rolNuevo;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public String getEmail() {
-        return email;
     }
 
     public RolUsuario getRolActivo() {
         return rolActivo;
     }
 
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public Cliente getCliente() {
         return cliente;
     }
 
-    /**
-     * Devuelve el objeto Conductor asociado al usuario, si existe. Si el usuario no es un conductor, devuelve null.
-     */
     public Conductor getConductor() {
         return conductor;
     }

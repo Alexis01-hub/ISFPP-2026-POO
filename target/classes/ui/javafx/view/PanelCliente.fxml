@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="movilidaddigital.interfaz.controller.PanelClienteController" stylesheets="@app.css" styleClass="root">
+    <top>
+        <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
+            <padding><Insets top="14" right="20" bottom="14" left="20"/></padding>
+            <Label text="MOVILIDAD DIGITAL" styleClass="header-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="usuarioLabel"/>
+        </HBox>
+    </top>
+    <center>
+        <SplitPane dividerPositions="0.34">
+            <items>
+                <VBox spacing="12" styleClass="panel">
+                    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+                    <Label text="Solicitar un viaje" styleClass="section-title"/>
+                    <ToggleButton fx:id="mapaToggle" text="Seleccionar en el mapa" onAction="#cambiarModoMapa" maxWidth="Infinity"/>
+                    <Label text="Tipo de servicio"/>
+                    <ComboBox fx:id="tipoServicioCombo" maxWidth="Infinity"/>
+                    <Label text="Categoría del vehículo"/>
+                    <ComboBox fx:id="categoriaCombo" maxWidth="Infinity"/>
+                    <Label text="Tipo de vehículo"/>
+                    <ComboBox fx:id="tipoVehiculoCombo" maxWidth="Infinity"/>
+                    <Button fx:id="cotizarButton" text="Cotizar viaje" onAction="#cotizar" maxWidth="Infinity"/>
+                    <Separator/>
+                    <Label fx:id="resultadoLabel" text="Sin cotización." wrapText="true" styleClass="result"/>
+                    <Label fx:id="estadoLabel" wrapText="true" styleClass="status"/>
+                    <Separator/>
+                    <Label text="Mis viajes" styleClass="section-title"/>
+                    <ListView fx:id="viajesList" prefHeight="130"/>
+                    <Button text="Actualizar viajes" onAction="#actualizarViajes" maxWidth="Infinity"/>
+                    <ComboBox fx:id="estrellasConductorCombo" promptText="Calificación: 1 a 5 estrellas" maxWidth="Infinity"/>
+                    <Button text="Calificar conductor" onAction="#calificarConductor" maxWidth="Infinity"/>
+                    <Label fx:id="calificacionLabel" wrapText="true" styleClass="status"/>
+                    <Button text="Volver al login" onAction="#volverAlLogin" maxWidth="Infinity"/>
+                </VBox>
+                <WebView fx:id="mapaWeb" minWidth="500" minHeight="500"/>
+            </items>
+        </SplitPane>
+    </center>
+</BorderPane>

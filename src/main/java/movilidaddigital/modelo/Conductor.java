@@ -1,33 +1,37 @@
 package movilidaddigital.modelo;
 
-import movilidaddigital.modelo.enums.CategoriaVehiculo;
-import movilidaddigital.modelo.enums.EstadoConductor;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Perfil operativo de un conductor, sus vehículos y viajes realizados.
+ */
 public class Conductor {
-    private String licenciaConducir;
-    private List<Viaje> viajes;
-    private CategoriaVehiculo categoriaVehiculoActivo;
-    private EstadoConductor estadoConductor;
-    private List<Vehiculo> vehiculos;
-    private Vehiculo vehiculoActivo;
 
-    /**
-     * Crea conductor con su primir vehiculo. arranca en fuera de servicio,
-     * usando ese vehiculo y aceptando solo viajes de la categoria del vehiculo.
-     * @param licenciaConducir
-     * @param vehiculo
-     */
+    private String licenciaConducir;
+    private EstadoConductor estadoConductor;
+    private Vehiculo vehiculoActivo;
+    private CategoriaVehiculo categoriaVehiculoActivo;
+    private List<Viaje> viajes;
+    private List<Vehiculo> vehiculos;
+
     public Conductor(String licenciaConducir, Vehiculo vehiculo) {
+        this.estadoConductor = EstadoConductor.FUERA_DE_SERVICIO;
         this.licenciaConducir = licenciaConducir;
-        this.vehiculos = new ArrayList<>();
-        this.vehiculos.add(vehiculo);
         this.vehiculoActivo = vehiculo;
         this.categoriaVehiculoActivo = vehiculo.getCategoriaVehiculo();
-        this.estadoConductor = EstadoConductor.FUERA_DE_SERVICIO;
-        this.viajes = new ArrayList<>();
+        vehiculos = new ArrayList<Vehiculo>();
+        viajes = new ArrayList<Viaje>();
+        agregarVehiculo(vehiculo);
+    }
+
+    public void agregarViaje(Viaje viaje) {
+        viajes.add(viaje);
+    }
+
+    public void agregarVehiculo(Vehiculo vehiculo) {
+        vehiculos.add(vehiculo);
     }
 
     public String getLicenciaConducir() {
@@ -38,12 +42,28 @@ public class Conductor {
         this.licenciaConducir = licenciaConducir;
     }
 
-    public List<Viaje> getViajes() {
-        return viajes;
+    public EstadoConductor getEstadoConductor() {
+        return estadoConductor;
     }
 
-    public void agregarViaje(Viaje viaje) {
-        this.viajes.add(viaje);
+    public void setEstado(EstadoConductor estadoConductor) {
+        this.estadoConductor = estadoConductor;
+    }
+
+    public Vehiculo getVehiculoActivo() {
+        return vehiculoActivo;
+    }
+
+    public void setVehiculoActivo(Vehiculo vehiculoActivo) {
+        this.vehiculoActivo = vehiculoActivo;
+    }
+
+    public List<Vehiculo> getVehiculos() {
+        return new ArrayList<Vehiculo>(vehiculos);
+    }
+
+    public List<Viaje> getViajes() {
+        return new ArrayList<Viaje>(viajes);
     }
 
     public CategoriaVehiculo getCategoriaVehiculoActivo() {
@@ -52,33 +72,5 @@ public class Conductor {
 
     public void setCategoriaVehiculoActivo(CategoriaVehiculo categoriaVehiculoActivo) {
         this.categoriaVehiculoActivo = categoriaVehiculoActivo;
-    }
-
-    public EstadoConductor getEstadoConductor() {
-        return estadoConductor;
-    }
-
-    public void setEstadoConductor(EstadoConductor estadoConductor) {
-        this.estadoConductor = estadoConductor;
-    }
-
-    public List<Vehiculo> getVehiculos() {
-        return vehiculos;
-    }
-
-    public void agregarVehiculo(Vehiculo vehiculo) {
-        this.vehiculos.add(vehiculo);
-    }
-
-    public Vehiculo getVehiculoActivo() {
-        return vehiculoActivo;
-    }
-
-    public void setVehiculoActivo(Vehiculo vehiculoActivo) {
-
-    }
-
-    public void setEstado(EstadoConductor estadoConductor) {
-        this.estadoConductor = estadoConductor;
     }
 }

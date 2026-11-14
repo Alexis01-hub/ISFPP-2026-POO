@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="movilidaddigital.interfaz.controller.PanelConductorController"
+            stylesheets="@app.css" styleClass="root">
+    <top>
+        <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
+            <padding><Insets top="14" right="20" bottom="14" left="20"/></padding>
+            <Label text="MOVILIDAD DIGITAL" styleClass="header-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="usuarioLabel"/>
+        </HBox>
+    </top>
+    <center>
+        <VBox maxWidth="650" spacing="14" BorderPane.alignment="CENTER">
+            <padding><Insets top="25" right="30" bottom="25" left="30"/></padding>
+            <Label text="Panel de conductor" styleClass="section-title"/>
+            <Label text="Vehículo activo"/>
+            <ComboBox fx:id="vehiculoCombo" maxWidth="Infinity"/>
+            <Label text="Categoría mínima aceptada"/>
+            <ComboBox fx:id="categoriaCombo" maxWidth="Infinity"/>
+            <Button text="Guardar configuración" onAction="#guardarConfiguracion" maxWidth="Infinity"/>
+            <Label fx:id="estadoLabel" styleClass="result"/>
+            <Button fx:id="disponibilidadButton" onAction="#cambiarDisponibilidad" maxWidth="Infinity"/>
+            <Separator/>
+            <Label text="Solicitudes pendientes" styleClass="section-title"/>
+            <ListView fx:id="solicitudesList" prefHeight="220"/>
+            <HBox spacing="10">
+                <Button text="Generar solicitudes simuladas" onAction="#generarSolicitudesSimuladas" HBox.hgrow="ALWAYS"/>
+                <Button text="Actualizar solicitudes" onAction="#actualizarSolicitudes" HBox.hgrow="ALWAYS"/>
+                <Button text="Aceptar solicitud" onAction="#aceptarSolicitud" HBox.hgrow="ALWAYS"/>
+            </HBox>
+            <Label fx:id="mensajeLabel" wrapText="true" styleClass="status"/>
+            <Button text="Volver al login" onAction="#volverAlLogin" maxWidth="Infinity"/>
+        </VBox>
+    </center>
+</BorderPane>

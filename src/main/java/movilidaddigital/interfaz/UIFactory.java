@@ -11,7 +11,7 @@ public class UIFactory {
             case "A":
                 return new ConsolaUI(gestorServicios, gestorUsuarios, gestorViajes);
             case "B":
-                return new JavaFXUI();
+                return new JavaFXUI(gestorServicios, gestorUsuarios, gestorViajes);
             default:
                 throw new IllegalArgumentException("Opción de interfaz no válida: " + opcion);
         }

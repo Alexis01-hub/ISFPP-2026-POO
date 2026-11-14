@@ -1,0 +1,15 @@
+movilidaddigital.aplicacion
+movilidaddigital.concurrencia
+movilidaddigital.datastructures
+movilidaddigital.datos
+movilidaddigital.datos.dao
+movilidaddigital.datos.dao.bd
+movilidaddigital.datos.dao.txt
+movilidaddigital.datos.dto
+movilidaddigital.excepciones
+movilidaddigital.interfaz
+movilidaddigital.interfaz.controller
+movilidaddigital.interfaz.mapa
+movilidaddigital.modelo
+movilidaddigital.modelo.enums
+movilidaddigital.negocio

@@ -1,0 +1,10 @@
+.root { -fx-font-family: "Segoe UI"; -fx-background-color: #f5f7fb; }
+.header { -fx-background-color: #1763c0; }
+.header-title { -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; }
+.title { -fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1763c0; }
+.subtitle { -fx-text-fill: #64748b; }
+.section-title { -fx-font-size: 20px; -fx-font-weight: bold; }
+.panel { -fx-background-color: white; }
+.result { -fx-font-weight: bold; -fx-text-fill: #1763c0; }
+.status { -fx-text-fill: #475569; }
+.error { -fx-text-fill: #b42318; }

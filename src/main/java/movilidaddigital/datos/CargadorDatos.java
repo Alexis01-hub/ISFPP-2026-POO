@@ -3,9 +3,9 @@ package movilidaddigital.datos;
 import movilidaddigital.modelo.Servicio;
 import movilidaddigital.modelo.Usuario;
 import movilidaddigital.modelo.Vehiculo;
-import movilidaddigital.modelo.enums.CategoriaVehiculo;
-import movilidaddigital.modelo.enums.TipoServicio;
-import movilidaddigital.modelo.enums.TipoVehiculo;
+import movilidaddigital.modelo.CategoriaVehiculo;
+import movilidaddigital.modelo.TipoServicio;
+import movilidaddigital.modelo.TipoVehiculo;
 import movilidaddigital.datastructures.ChainHashMap;
 import movilidaddigital.datastructures.Map;
 

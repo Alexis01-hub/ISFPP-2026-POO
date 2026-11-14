@@ -1,9 +1,9 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import movilidaddigital.modelo.Servicio;
-import movilidaddigital.modelo.enums.CategoriaVehiculo;
-import movilidaddigital.modelo.enums.TipoServicio;
-import movilidaddigital.modelo.enums.TipoVehiculo;
+import movilidaddigital.modelo.CategoriaVehiculo;
+import movilidaddigital.modelo.TipoServicio;
+import movilidaddigital.modelo.TipoVehiculo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

@@ -1,27 +1,27 @@
 package movilidaddigital.modelo;
 
-import movilidaddigital.excepciones.TransicionViajeInvalidaException;
-import movilidaddigital.modelo.enums.CalificacionViaje;
-import movilidaddigital.modelo.enums.EstadoViaje;
-import movilidaddigital.modelo.enums.RolUsuario;
-import movilidaddigital.excepciones.VehiculoNoCompatibleException;
-import movilidaddigital.modelo.enums.EstadoConductor;
 import java.time.LocalDateTime;
 import java.util.*;
 
+/**
+ * Entidad que representa un viaje y su historial de transiciones.
+ *
+ * <p>También conserva las calificaciones que intercambian cliente y conductor.</p>
+ */
 public class Viaje {
     private UUID id;
     private String motivoCancelacion;
-    private Usuario cliente;
-    private Usuario conductor;
-    private Vehiculo vehiculo;
     private Ubicacion origen;
     private Ubicacion destino;
     private Servicio servicio;
+    private Vehiculo vehiculo;
+    private Usuario cliente;
+    private Usuario conductor;
+    private RolUsuario rolCancela;
+    private CalificacionViaje calificacionCliente = CalificacionViaje.NO_CALIFICADO;
+    private CalificacionViaje calificacionConductor = CalificacionViaje.NO_CALIFICADO;
+
     private List<RegistroViaje> registroViaje;
-    private CalificacionViaje calificacionConductor;
-    private CalificacionViaje calificacionCliente;
-    private RolUsuario rolCancela; // Indica si la cancelación fue por parte del cliente o del conductor
 
     public Viaje(Usuario cliente, Ubicacion origen, Ubicacion destino, Servicio servicio) {
         this.id = UUID.randomUUID();
@@ -29,185 +29,123 @@ public class Viaje {
         this.origen = origen;
         this.destino = destino;
         this.servicio = servicio;
-        this.registroViaje = new ArrayList<>();
-        this.calificacionConductor = CalificacionViaje.NO_CALIFICADO;
-        this.calificacionCliente = CalificacionViaje.NO_CALIFICADO;
+        registroViaje = new ArrayList<RegistroViaje>();
     }
 
-    /**
-     * Solicita el viaje, registrando la fecha y hora en que se solicita y pasando a estado SOLICITADO.
-     * @param fechaHora fecha y hora en que se solicita el viaje
-     */
     public void solicitar(LocalDateTime fechaHora) {
-        if (estadoActual() != null) {
-            throw new TransicionViajeInvalidaException(
-                    "El viaje ya fue solicitado");
-        }
+        if (cliente.getRolActivo() != RolUsuario.CLIENTE)
+            throw new IllegalStateException("El usuario debe tener el rol de cliente activo para solicitar un viaje.");
 
-        if (cliente.getCliente().enViaje()) {
-            throw new TransicionViajeInvalidaException(
-                    "El cliente ya tiene un viaje activo");
-        }
+        if (cliente.getCliente().enViaje())
+            throw new IllegalStateException("No se puede solicitar un nuevo viaje porque ya tenés un viaje activo.");
 
-        registrar(fechaHora, EstadoViaje.SOLICITADO);
         cliente.getCliente().agregarViaje(this);
+        registroViaje.add(new RegistroViaje(EstadoViaje.SOLICITADO, fechaHora));
     }
 
-    /**
-     * Acepta el viaje que se encuentra en estado SOLICITADO, pasando a estado ACEPTADO.
-     * @param fechaHora fecha y hora en que se acepta el viaje
-     * @param conductor usuario que acepta el viaje (debe ser un conductor)
-     */
     public void aceptar(LocalDateTime fechaHora, Usuario conductor) {
-        if (estadoActual() != EstadoViaje.SOLICITADO) {
-            throw new TransicionViajeInvalidaException(
-                    "Solo se puede aceptar un viaje SOLICITADO");
-        }
+        if (estadoActual() != EstadoViaje.SOLICITADO)
+            throw new IllegalStateException("Solo se puede aceptar un viaje que esté SOLICITADO");
 
-        if (conductor.getConductor() == null) {
-            throw new TransicionViajeInvalidaException(
-                    "El usuario no es conductor");
-        }
+        if (conductor.getRolActivo() != RolUsuario.CONDUCTOR)
+            throw new IllegalStateException("El usuario asignado no se encuentra con el rol de conductor activo.");
 
-        Vehiculo vehiculoConductor =
-                conductor.getConductor().getVehiculoActivo();
+        EstadoConductor estadoActualConductor = conductor.getConductor().getEstadoConductor();
+        if (estadoActualConductor == EstadoConductor.FUERA_DE_SERVICIO)
+            throw new IllegalStateException("El viaje no puede ser aceptado por un conductor fuera de servicio.");
 
-        if (vehiculoConductor.getTipoVehiculo() != servicio.getTipoVehiculo()
-                || vehiculoConductor.getCategoriaVehiculo().getValor()
-                < servicio.getCategoriaVehiculo().getValor()
-                || !vehiculoConductor.getTipoServicios()
-                .contains(servicio.getTipoServicio())) {
-            throw new VehiculoNoCompatibleException(
-                    "El vehículo no es compatible con el servicio");
-        }
+        if (estadoActualConductor == EstadoConductor.VIAJE_A_ORIGEN
+                || estadoActualConductor == EstadoConductor.VIAJE_A_DESTINO)
+            throw new IllegalStateException(
+                    "El viaje no puede ser aceptado porque el conductor ya está realizando un viaje.");
+
+        Vehiculo vehiculoConductor = conductor.getConductor().getVehiculoActivo();
+        if (vehiculoConductor == null)
+            throw new IllegalStateException("El conductor no tiene un vehículo activo asignado.");
+
+        if (vehiculoConductor.getTipoVehiculo() != this.servicio.getTipoVehiculo())
+            throw new IllegalStateException("El tipo de vehículo del conductor (" + vehiculoConductor.getTipoVehiculo()
+                    + ") no coincide con el requerido por el servicio (" + this.servicio.getTipoVehiculo() + ").");
+
+        if (vehiculoConductor.getCategoriaVehiculo().getValorNumerico() < this.servicio.getCategoriaVehiculo()
+                .getValorNumerico())
+            throw new IllegalStateException("La categoría del vehículo (" + vehiculoConductor.getCategoriaVehiculo()
+                    + ") es inferior a la requerida por el servicio (" + this.servicio.getCategoriaVehiculo() + ").");
+
+        if (!vehiculoConductor.getTipoServicios().contains(this.servicio.getTipoServicio()))
+            throw new IllegalStateException("El vehículo no está habilitado para ofrecer el tipo de servicio: "
+                    + this.servicio.getTipoServicio());
 
         this.conductor = conductor;
-        this.vehiculo = vehiculoConductor;
-        registrar(fechaHora, EstadoViaje.ACEPTADO);
+        vehiculo = conductor.getConductor().getVehiculoActivo();
+        conductor.getConductor().setEstado(EstadoConductor.VIAJE_A_ORIGEN);
         conductor.getConductor().agregarViaje(this);
-        conductor.getConductor().setEstado(
-                EstadoConductor.VIAJE_A_ORIGEN);
+
+        registroViaje.add(new RegistroViaje(EstadoViaje.ACEPTADO, fechaHora));
     }
 
-    /**
-     * Inicia el viaje que se encuentra en estado ACEPTADO, pasando a estado INICIADO.
-     * @param fechaHora fecha y hora en que se inicia el viaje
-     */
     public void iniciar(LocalDateTime fechaHora) {
-        if (estadoActual() != EstadoViaje.ACEPTADO) {
-            throw new TransicionViajeInvalidaException(
-                    "Solo se puede iniciar un viaje ACEPTADO");
-        }
+        if (estadoActual() != EstadoViaje.ACEPTADO)
+            throw new IllegalStateException("Solo puede iniciar un viaje que esté ACEPTADO");
 
-        registrar(fechaHora, EstadoViaje.INICIADO);
-        conductor.getConductor().setEstado(
-                EstadoConductor.VIAJE_A_DESTINO);
+        if (this.conductor != null) {
+            this.conductor.getConductor().setEstado(EstadoConductor.VIAJE_A_DESTINO);
+        }
+        registroViaje.add(new RegistroViaje(EstadoViaje.INICIADO, fechaHora));
     }
 
-    /**
-     * finaliza el viaje que se encuentra en estado INICIADO, pasando a estado FINALIZADO.
-     * @param fechaHora fecha y hora en que se finaliza el viaje
-     * @param calificacionCliente calificacion del cliente sobre el viaje
-     * @param calificacionConductor calificacion del conductor sobre el viaje
-     */
-    public void finalizar(LocalDateTime fechaHora,
-                          CalificacionViaje calificacionCliente,
+    public void finalizar(LocalDateTime fechaHora, CalificacionViaje calificacionCliente,
                           CalificacionViaje calificacionConductor) {
-        if (estadoActual() != EstadoViaje.INICIADO) {
-            throw new TransicionViajeInvalidaException(
-                    "Solo se puede finalizar un viaje INICIADO");
-        }
+        if (estadoActual() != EstadoViaje.INICIADO)
+            throw new IllegalStateException("Solo puede finalizar un viaje que esté INICIADO");
 
         this.calificacionCliente = calificacionCliente;
         this.calificacionConductor = calificacionConductor;
-        registrar(fechaHora, EstadoViaje.FINALIZADO);
-
-        conductor.getConductor().setEstado(
-                EstadoConductor.DISPONIBLE);
+        this.conductor.getConductor().setEstado(EstadoConductor.DISPONIBLE);
+        registroViaje.add(new RegistroViaje(EstadoViaje.FINALIZADO, fechaHora));
     }
 
-    /**
-     * Cancela el viaje que se encuentra en estado SOLICITADO, ACEPTADO o INICIADO, pasando a estado CANCELADO.
-     * @param fechaHora fecha y hora en que se cancela el viaje
-     * @param usuario usuario que cancela el viaje (debe ser el cliente o el conductor)
-     * @param motivo motivo de la cancelacion en texto libre
-     */
-    public void cancelar(LocalDateTime fechaHora, Usuario usuario, String motivo){
-        EstadoViaje estado = estadoActual();
-        if(estado == null || estado == EstadoViaje.FINALIZADO || estado == EstadoViaje.CANCELADO || estado == EstadoViaje.RECHAZADO){
-            throw new TransicionViajeInvalidaException("No se puede cancelar un viaje en estado "+ estado);
-        }
-        if (motivo == null || motivo.isBlank()){
-            throw new IllegalArgumentException("El motivo de cancelacion no puede ser nulo o vacio");
-        }
-        if (usuario == cliente){
-            this.rolCancela = RolUsuario.CLIENTE;
-        } else if (usuario == conductor){
-            this.rolCancela = RolUsuario.CONDUCTOR;
-        } else {
-            throw new TransicionViajeInvalidaException("El usuario que cancela no es ni el cliente ni el conductor del viaje");
-        }
+    public void cancelar(LocalDateTime fechaHora, Usuario usuario, String motivo) {
+        if (estadoActual() == EstadoViaje.CANCELADO || estadoActual() == EstadoViaje.FINALIZADO
+                || estadoActual() == EstadoViaje.RECHAZADO)
+            throw new IllegalStateException(
+                    "No se puede cancelar un viaje que ya esté CANCELADO, FINALIZADO o RECHAZADO.");
+
+        if (estadoActual() == EstadoViaje.SOLICITADO && usuario.getRolActivo() != RolUsuario.CLIENTE)
+            throw new IllegalStateException("Un Conductor no puede cancelar un viaje que todavía está SOLICITADO.");
+
+        if (this.conductor != null)
+            this.conductor.getConductor().setEstado(EstadoConductor.DISPONIBLE);
+
+        this.rolCancela = usuario.getRolActivo();
         this.motivoCancelacion = motivo;
-        registrar(fechaHora, EstadoViaje.CANCELADO);
-
-        if (conductor != null) {
-            if (rolCancela == RolUsuario.CLIENTE) {
-                conductor.getConductor().setEstado(EstadoConductor.DISPONIBLE);
-            } else {
-                conductor.getConductor().setEstado(EstadoConductor.FUERA_DE_SERVICIO);
-            }
-        }
+        registroViaje.add(new RegistroViaje(EstadoViaje.CANCELADO, fechaHora));
     }
 
-    /**
-     * rechaza el viaje que se encuentra en estado SOLICITADO, pasando a estado RECHAZADO.
-     *
-     * @param fechaHora fecha y hora en que se rechaza el viaje
-     */
     public void rechazar(LocalDateTime fechaHora) {
-        if (estadoActual() != EstadoViaje.SOLICITADO) {
-            throw new TransicionViajeInvalidaException(
-                    "Solo se puede rechazar un viaje SOLICITADO");
-        }
+        if (estadoActual() != EstadoViaje.SOLICITADO)
+            throw new IllegalStateException("Solo se puede rechazar un viaje que esté SOLICITADO");
 
-        registrar(fechaHora, EstadoViaje.RECHAZADO);
+        registroViaje.add(new RegistroViaje(EstadoViaje.RECHAZADO, fechaHora));
     }
 
-    /**
-     * Devuelve el estado del ultimo registro del historial,
-     * o null si el viaje todavia no fue solicitado.
-     * @return estado del viaje
-     */
-    public EstadoViaje estadoActual(){
-        if (registroViaje.isEmpty()){
+    public EstadoViaje estadoActual() {
+        if (registroViaje == null || registroViaje.isEmpty())
             return null;
-        }
-        return registroViaje.get(registroViaje.size()-1).getEstadoViaje();
-    }
 
-    // agrega una linea al historial de estados del viaje. Se usa para registrar cada cambio de estado.
-    private void registrar(LocalDateTime fechaHora, EstadoViaje estado) {
-        registroViaje.add(new RegistroViaje(fechaHora, estado));
+        return registroViaje.get(registroViaje.size() - 1).getEstadoViaje();
     }
 
     public UUID getId() {
         return id;
     }
 
-    public String getMotivoCancelacion() {
-        return motivoCancelacion;
+    public CalificacionViaje getCalificacionCliente() {
+        return calificacionCliente;
     }
 
-    public Usuario getCliente() {
-        return cliente;
-    }
-
-    public Usuario getConductor() {
-        return conductor;
-    }
-
-    public Vehiculo getVehiculo() {
-        return vehiculo;
+    public CalificacionViaje getCalificacionConductor() {
+        return calificacionConductor;
     }
 
     public Ubicacion getOrigen() {
@@ -218,27 +156,31 @@ public class Viaje {
         return destino;
     }
 
+    public Vehiculo getVehiculo() {
+        return vehiculo;
+    }
+
+    public Usuario getCliente() {
+        return cliente;
+    }
+
+    public Usuario getConductor() {
+        return conductor;
+    }
+
     public Servicio getServicio() {
         return servicio;
     }
 
-    /**
-     * Devuelve una lista inmodificable con el historial de estados del viaje.
-     * @return lista inmodificable de registros de viaje
-     */
-    public List<RegistroViaje> getRegistroViaje() {
-        return Collections.unmodifiableList(registroViaje);
-    }
-
-    public CalificacionViaje getCalificacionConductor() {
-        return calificacionConductor;
-    }
-
-    public CalificacionViaje getCalificacionCliente() {
-        return calificacionCliente;
+    public String getMotivoCancelacion() {
+        return motivoCancelacion;
     }
 
     public RolUsuario getRolCancela() {
         return rolCancela;
+    }
+
+    public List<RegistroViaje> getRegistroViaje() {
+        return new ArrayList<RegistroViaje>(this.registroViaje);
     }
 }

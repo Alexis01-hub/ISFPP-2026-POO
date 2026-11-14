@@ -5,12 +5,15 @@ import movilidaddigital.modelo.Servicio;
 import movilidaddigital.modelo.Usuario;
 import movilidaddigital.modelo.Vehiculo;
 import movilidaddigital.modelo.Viaje;
-import movilidaddigital.modelo.enums.EstadoConductor;
+import movilidaddigital.modelo.EstadoConductor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /** Decide que conductores pueden tomar un viaje. */
+/**
+ * Selecciona conductores disponibles y compatibles con un servicio.
+ */
 public class Despachador {
     private final GestorUsuarios gestorUsuarios;
 
@@ -35,10 +38,10 @@ public class Despachador {
         for (var t : v.getTipoServicios()) {
             if (t == servicio.getTipoServicio()) prestaServicio = true;
         }
-        int cat = servicio.getCategoriaVehiculo().getValor();
+        int cat = servicio.getCategoriaVehiculo().getValorNumerico();
         return prestaServicio
-                && cat >= conductor.getCategoriaVehiculoActivo().getValor()
-                && cat <= v.getCategoriaVehiculo().getValor();
+                && cat >= conductor.getCategoriaVehiculoActivo().getValorNumerico()
+                && cat <= v.getCategoriaVehiculo().getValorNumerico();
     }
 
     /**

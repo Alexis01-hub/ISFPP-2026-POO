@@ -7,27 +7,33 @@ import movilidaddigital.modelo.RegistroViaje;
 import movilidaddigital.modelo.Servicio;
 import movilidaddigital.modelo.Usuario;
 import movilidaddigital.modelo.Viaje;
-import movilidaddigital.modelo.enums.CalificacionViaje;
-import movilidaddigital.modelo.enums.EstadoConductor;
-import movilidaddigital.modelo.enums.EstadoViaje;
-import movilidaddigital.modelo.enums.RolUsuario;
+import movilidaddigital.modelo.CalificacionViaje;
+import movilidaddigital.modelo.EstadoConductor;
+import movilidaddigital.modelo.EstadoViaje;
+import movilidaddigital.modelo.RolUsuario;
 
 import movilidaddigital.datastructures.ArrayList;
 import movilidaddigital.datastructures.List;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Maneja el ciclo de vida de los viajes y el estado de los conductores que participan.
- * Los metodos son synchronized: cuando haya hilos (varios conductores aceptando a la vez),
- * solo uno puede ganar el viaje.
+ * La aplicación principal usa este gestor de forma secuencial. La práctica de
+ * concurrencia está aislada en el paquete movilidaddigital.concurrencia.
+ */
+/**
+ * Coordina la creación, despacho, finalización y calificación de viajes.
  */
 public class GestorViajes {
     private final GestorServicios gestorServicios;
     private final Despachador despachador;
     private final ViajeFactory viajeFactory;
     private final List<Viaje> viajes = new ArrayList<>();
+    private final Map<Viaje, CalificacionViaje> calificacionesConductor = new HashMap<>();
 
     public GestorViajes(GestorServicios gestorServicios, Despachador despachador) {
         this(gestorServicios, despachador, new ViajeSolicitudFactory());
@@ -47,8 +53,23 @@ public class GestorViajes {
         return viajes;
     }
 
+    public void calificarConductor(Viaje viaje, CalificacionViaje calificacion) {
+        if (viaje.estadoActual() != EstadoViaje.FINALIZADO) {
+            throw new IllegalStateException("Solo se puede calificar un viaje finalizado.");
+        }
+        if (calificacion == null || calificacion == CalificacionViaje.NO_CALIFICADO) {
+            throw new IllegalArgumentException("La calificación debe tener entre 1 y 5 estrellas.");
+        }
+        calificacionesConductor.put(viaje, calificacion);
+    }
+
+    public CalificacionViaje getCalificacionConductor(Viaje viaje) {
+        return calificacionesConductor.getOrDefault(
+                viaje, CalificacionViaje.NO_CALIFICADO);
+    }
+
     /** El cliente pide el viaje con la alternativa elegida. Un cliente no puede tener dos viajes en curso. */
-    public synchronized Viaje solicitar(Usuario cliente, Alternativa alternativa, LocalDateTime fecha) {
+    public Viaje solicitar(Usuario cliente, Alternativa alternativa, LocalDateTime fecha) {
         if (cliente.getCliente().enViaje()) {
             throw new ClienteEnViajeException("El cliente " + cliente.getNombre() + " ya tiene un viaje en curso");
         }
@@ -59,7 +80,7 @@ public class GestorViajes {
     }
 
     /** Un conductor disponible y compatible acepta el viaje; pasa a VIAJE_A_ORIGEN. */
-    public synchronized void aceptar(Viaje viaje, Usuario conductor, LocalDateTime fecha) {
+    public void aceptar(Viaje viaje, Usuario conductor, LocalDateTime fecha) {
         if (conductor.getConductor() == null) {
             throw new TransicionViajeInvalidaException("El usuario no es conductor");
         }
@@ -73,7 +94,7 @@ public class GestorViajes {
             throw new VehiculoNoCompatibleException("El vehiculo activo no es compatible con el servicio " + viaje.getServicio().getNombre());
         }
         viaje.aceptar(fecha, conductor); // si otro ya lo acepto, falla aca y el conductor no cambia de estado
-        conductor.getConductor().setEstadoConductor(EstadoConductor.VIAJE_A_ORIGEN); // si llego aca, el conductor gano el viaje y pasa a VIAJE_A_ORIGEN
+        conductor.getConductor().setEstado(EstadoConductor.VIAJE_A_ORIGEN); // si llego aca, el conductor gano el viaje y pasa a VIAJE_A_ORIGEN
     }
 
     /**
@@ -81,9 +102,9 @@ public class GestorViajes {
      * @param viaje viaje que se inicia
      * @param fecha fecha y hora en que el viaje inicia
      */
-    public synchronized void iniciar(Viaje viaje, LocalDateTime fecha) {
+    public void iniciar(Viaje viaje, LocalDateTime fecha) {
         viaje.iniciar(fecha);
-        viaje.getConductor().getConductor().setEstadoConductor(EstadoConductor.VIAJE_A_DESTINO);
+        viaje.getConductor().getConductor().setEstado(EstadoConductor.VIAJE_A_DESTINO);
     }
 
     /**
@@ -95,10 +116,10 @@ public class GestorViajes {
      * @param calificacionCliente calificacion que recibe el cliente por parte del conductor
      * @return costo final del viaje, calculado como distancia origen-destino y minutos entre INICIADO y FINALIZADO
      */
-    public synchronized double finalizar(Viaje viaje, LocalDateTime fecha,
+    public double finalizar(Viaje viaje, LocalDateTime fecha,
                                          CalificacionViaje calificacionConductor, CalificacionViaje calificacionCliente) {
         viaje.finalizar(fecha, calificacionConductor, calificacionCliente);
-        viaje.getConductor().getConductor().setEstadoConductor(EstadoConductor.DISPONIBLE);
+        viaje.getConductor().getConductor().setEstado(EstadoConductor.DISPONIBLE);
         return costoFinal(viaje);
     }
 
@@ -113,12 +134,12 @@ public class GestorViajes {
      * Si cancela el cliente con el conductor ya en camino, se cobra el tramo que el conductor alcanzo a recorrer
      * (tiempo entre ACEPTADO y CANCELADO a la velocidad promedio), sin tarifa base: precioKm * km + precioMinuto * minutos.
      */
-    public synchronized double cancelar(Viaje viaje, Usuario quien, String motivo, LocalDateTime fecha) {
+    public double cancelar(Viaje viaje, Usuario quien, String motivo, LocalDateTime fecha) {
         viaje.cancelar(fecha, quien, motivo);
         double costo = calcularCostoCancelacion(viaje);
         Usuario conductor = viaje.getConductor();
         if (conductor != null) {
-            conductor.getConductor().setEstadoConductor(
+            conductor.getConductor().setEstado(
                     viaje.getRolCancela() == RolUsuario.CONDUCTOR ? EstadoConductor.FUERA_DE_SERVICIO : EstadoConductor.DISPONIBLE);
         }
         return costo;
@@ -129,7 +150,7 @@ public class GestorViajes {
      * @param viaje viaje que se rechaza
      * @param fecha fecha y hora en que se rechaza el viaje
      */
-    public synchronized void rechazarPorTimeout(Viaje viaje, LocalDateTime fecha) {
+    public void rechazarPorTimeout(Viaje viaje, LocalDateTime fecha) {
         viaje.rechazar(fecha);
     }
 

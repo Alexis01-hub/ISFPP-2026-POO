@@ -1,13 +1,12 @@
 package movilidaddigital.interfaz;
 
 import movilidaddigital.datos.Configuracion;
-import movilidaddigital.modelo.RectanguloGeografico;
 import movilidaddigital.modelo.Servicio;
 import movilidaddigital.modelo.Ubicacion;
 import movilidaddigital.modelo.Usuario;
 import movilidaddigital.modelo.Viaje;
-import movilidaddigital.modelo.enums.CalificacionViaje;
-import movilidaddigital.modelo.enums.EstadoConductor;
+import movilidaddigital.modelo.CalificacionViaje;
+import movilidaddigital.modelo.EstadoConductor;
 import movilidaddigital.negocio.Alternativa;
 import movilidaddigital.negocio.GestorServicios;
 import movilidaddigital.negocio.GestorUsuarios;
@@ -39,9 +38,8 @@ public class ConsolaUI implements InterfazUsuario {
     }
 
     private void simularViajeAleatorio() {
-        RectanguloGeografico zona = Configuracion.cargarZonaPermitida();
-        Ubicacion origen = ubicacionAleatoria(zona);
-        Ubicacion destino = ubicacionAleatoria(zona);
+        Ubicacion origen = ubicacionAleatoria();
+        Ubicacion destino = ubicacionAleatoria();
 
         List<Usuario> conductores = new ArrayList<>();
         for (Usuario usuario : gestorUsuarios.getUsuarios()) {
@@ -58,7 +56,7 @@ public class ConsolaUI implements InterfazUsuario {
         Collections.shuffle(conductores);
 
         for (Usuario conductor : conductores) {
-            conductor.getConductor().setEstadoConductor(EstadoConductor.DISPONIBLE);
+            conductor.getConductor().setEstado(EstadoConductor.DISPONIBLE);
         }
 
         LocalDateTime inicio = LocalDateTime.now();
@@ -102,15 +100,15 @@ public class ConsolaUI implements InterfazUsuario {
     private boolean compatible(Usuario usuario, Servicio servicio) {
         var vehiculo = usuario.getConductor().getVehiculoActivo();
         return vehiculo.getTipoVehiculo() == servicio.getTipoVehiculo()
-                && vehiculo.getCategoriaVehiculo().getValor()
-                >= servicio.getCategoriaVehiculo().getValor()
+                && vehiculo.getCategoriaVehiculo().getValorNumerico()
+                >= servicio.getCategoriaVehiculo().getValorNumerico()
                 && vehiculo.getTipoServicios().contains(servicio.getTipoServicio());
     }
 
-    private Ubicacion ubicacionAleatoria(RectanguloGeografico zona) {
+    private Ubicacion ubicacionAleatoria() {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         return new Ubicacion(
-                random.nextDouble(zona.getLatitudMinima(), zona.getLatitudMaxima()),
-                random.nextDouble(zona.getLongitudMinima(), zona.getLongitudMaxima()));
+                random.nextDouble(Configuracion.latitudMinima(), Configuracion.latitudMaxima()),
+                random.nextDouble(Configuracion.longitudMinima(), Configuracion.longitudMaxima()));
     }
 }

@@ -12,9 +12,9 @@ import movilidaddigital.datastructures.Map;
 import movilidaddigital.modelo.Servicio;
 import movilidaddigital.modelo.Usuario;
 import movilidaddigital.modelo.Vehiculo;
-import movilidaddigital.modelo.enums.CategoriaVehiculo;
-import movilidaddigital.modelo.enums.TipoServicio;
-import movilidaddigital.modelo.enums.TipoVehiculo;
+import movilidaddigital.modelo.CategoriaVehiculo;
+import movilidaddigital.modelo.TipoServicio;
+import movilidaddigital.modelo.TipoVehiculo;
 
 /** Adapta los DTO obtenidos por JDBC al modelo usado por la capa de negocio. */
 public class CargadorDatosBD {
@@ -30,9 +30,9 @@ public class CargadorDatosBD {
             for (ServicioDTO dto : fabrica.getServicioDAO().obtenerTodos()) {
                 resultado.add(new Servicio(dto.getNombre(), dto.getTarifaBase(),
                         dto.getPrecioKm(), dto.getPrecioMinuto(),
-                        TipoVehiculo.desdeCodigo(dto.getCodigoTipoVehiculo()),
-                        CategoriaVehiculo.desdeCodigo(dto.getCodigoCategoriaVehiculo()),
-                        TipoServicio.desdeCodigo(dto.getCodigoTipoServicio())));
+                        tipoVehiculo(dto.getCodigoTipoVehiculo()),
+                        categoriaVehiculo(dto.getCodigoCategoriaVehiculo()),
+                        tipoServicio(dto.getCodigoTipoServicio())));
             }
             return resultado;
         } catch (Exception e) {
@@ -47,8 +47,8 @@ public class CargadorDatosBD {
                 List<TipoServicio> tipos = tiposServicio(dto.getTiposServicio());
                 Vehiculo vehiculo = new Vehiculo(dto.getPatente(), dto.getModelo(),
                         dto.getCapacidadPasajeros(),
-                        TipoVehiculo.desdeCodigo(dto.getCodigoTipoVehiculo()),
-                        CategoriaVehiculo.desdeCodigo(dto.getCodigoCategoriaVehiculo()),
+                        tipoVehiculo(dto.getCodigoTipoVehiculo()),
+                        categoriaVehiculo(dto.getCodigoCategoriaVehiculo()),
                         tipos.get(0));
                 for (int i = 1; i < tipos.size(); i++) {
                     vehiculo.agregarTipoServicio(tipos.get(i));
@@ -93,20 +93,45 @@ public class CargadorDatosBD {
         return Enum.valueOf(tipo, valor.trim().toUpperCase());
     }
 
+    private static TipoVehiculo tipoVehiculo(int codigo) {
+        return switch (codigo) {
+            case 0 -> TipoVehiculo.AUTO;
+            case 1 -> TipoVehiculo.MOTO;
+            default -> throw new IllegalArgumentException(
+                    "Codigo de tipo de vehiculo invalido: " + codigo);
+        };
+    }
+
+    private static CategoriaVehiculo categoriaVehiculo(int codigo) {
+        return switch (codigo) {
+            case 0 -> CategoriaVehiculo.ESTANDAR;
+            case 1 -> CategoriaVehiculo.CONFORT;
+            case 2 -> CategoriaVehiculo.PREMIUM;
+            default -> throw new IllegalArgumentException(
+                    "Codigo de categoria de vehiculo invalido: " + codigo);
+        };
+    }
+
+    private static TipoServicio tipoServicio(int codigo) {
+        return switch (codigo) {
+            case 0 -> TipoServicio.PASAJEROS;
+            case 1 -> TipoServicio.ENVIOS;
+            default -> throw new IllegalArgumentException(
+                    "Codigo de tipo de servicio invalido: " + codigo);
+        };
+    }
+
     private static List<TipoServicio> tiposServicio(String valor) {
         String normalizado = valor.trim();
         try {
             int codigo = Integer.parseInt(normalizado);
-            if (codigo == 1) {
-                return List.of(TipoServicio.PASAJEROS);
-            }
-            if (codigo == 2) {
-                return List.of(TipoServicio.ENVIOS);
-            }
-            if (codigo == 3) {
-                return List.of(TipoServicio.PASAJEROS, TipoServicio.ENVIOS);
-            }
-            return List.of(TipoServicio.desdeCodigo(codigo));
+            return switch (codigo) {
+                case 0, 1 -> List.of(TipoServicio.PASAJEROS);
+                case 2 -> List.of(TipoServicio.ENVIOS);
+                case 3 -> List.of(TipoServicio.PASAJEROS, TipoServicio.ENVIOS);
+                default -> throw new IllegalArgumentException(
+                        "Codigo de tipos de servicio invalido: " + codigo);
+            };
         } catch (NumberFormatException e) {
             String[] valores = normalizado.split("[,;]");
             List<TipoServicio> tipos = new ArrayList<>();

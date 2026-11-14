@@ -6,14 +6,17 @@ import movilidaddigital.excepciones.UsuarioYaRegistradoException;
 import movilidaddigital.modelo.Conductor;
 import movilidaddigital.modelo.Usuario;
 import movilidaddigital.modelo.Vehiculo;
-import movilidaddigital.modelo.enums.CategoriaVehiculo;
-import movilidaddigital.modelo.enums.EstadoConductor;
+import movilidaddigital.modelo.CategoriaVehiculo;
+import movilidaddigital.modelo.EstadoConductor;
 
 import java.util.ArrayList;
 import movilidaddigital.datastructures.ChainHashMap;
 import java.util.List;
 import movilidaddigital.datastructures.Map;
 
+/**
+ * Fachada de las operaciones de registro y disponibilidad de usuarios.
+ */
 public class GestorUsuarios {
     private final List<Usuario> usuarios = new ArrayList<>();
     private final Map<String, Usuario> porEmail = new ChainHashMap<>(); // clave: email en minusculas, valor: usuario
@@ -61,7 +64,7 @@ public class GestorUsuarios {
      * @param email email del usuario
      * @return el usuario registrado
      */
-    public synchronized Usuario registrar(String nombre, String telefono, String email) {
+    public Usuario registrar(String nombre, String telefono, String email) {
         if (nombre == null || nombre.isBlank() || email == null || email.isBlank()) {
             throw new IllegalArgumentException("Nombre y email son obligatorios");
         }
@@ -78,7 +81,7 @@ public class GestorUsuarios {
      * @param email email del usuario a buscar
      * @return el usuario encontrado, o null si no existe
      */
-    public synchronized Usuario buscarPorEmail(String email) {
+    public Usuario buscarPorEmail(String email) {
         return porEmail.get(clave(email));
     }
 
@@ -92,7 +95,7 @@ public class GestorUsuarios {
      * @param licencia licencia del conductor
      * @param vehiculo primer vehiculo del conductor
      */
-    public synchronized void altaConductor(Usuario usuario, String licencia, Vehiculo vehiculo) {
+    public void altaConductor(Usuario usuario, String licencia, Vehiculo vehiculo) {
         if (licencia == null || licencia.isBlank()) {
             throw new IllegalArgumentException("La licencia es obligatoria");
         }
@@ -105,7 +108,7 @@ public class GestorUsuarios {
      * @param usuario usuario que es conductor
      * @param vehiculo vehiculo a agregar al conductor
      */
-    public synchronized void agregarVehiculo(Usuario usuario, Vehiculo vehiculo) {
+    public void agregarVehiculo(Usuario usuario, Vehiculo vehiculo) {
         conductorDe(usuario); // lanza excepcion si el usuario no es conductor
         validarPatenteLibre(vehiculo); // valida que la patente del vehiculo no este en uso por otro conductor
         usuario.getConductor().agregarVehiculo(vehiculo); // agrega el vehiculo al usuario conductor.
@@ -118,12 +121,12 @@ public class GestorUsuarios {
      * @param vehiculo vehiculo a seleccionar (debe estar en la lista de vehiculos del conductor)
      * @param categoriaMinima categoria minima para aceptar viajes (no puede ser mayor a la del vehiculo seleccionado)
      */
-    public synchronized void seleccionarVehiculo(Usuario usuario, Vehiculo vehiculo, CategoriaVehiculo categoriaMinima) {
+    public void seleccionarVehiculo(Usuario usuario, Vehiculo vehiculo, CategoriaVehiculo categoriaMinima) {
         Conductor c = conductorDe(usuario);
         if (c.getEstadoConductor() != EstadoConductor.FUERA_DE_SERVICIO) {
             throw new EstadoConductorInvalidoException("Solo se puede cambiar de vehiculo estando fuera de servicio");
         }
-        if (categoriaMinima.getValor() > vehiculo.getCategoriaVehiculo().getValor()) {
+        if (categoriaMinima.getValorNumerico() > vehiculo.getCategoriaVehiculo().getValorNumerico()) {
             throw new IllegalArgumentException("La categoria minima no puede superar la del vehiculo");
         }
         c.setVehiculoActivo(vehiculo); // selecciona el vehiculo activo del conductor
@@ -134,7 +137,7 @@ public class GestorUsuarios {
      * Permite al conductor ponerse disponible para recibir viajes. Solo se puede poner disponible si tiene un vehiculo activo seleccionado.
      * @param usuario usuario que es conductor
      */
-    public synchronized void ponerDisponible(Usuario usuario) {
+    public void ponerDisponible(Usuario usuario) {
         cambiarEstado(usuario, EstadoConductor.DISPONIBLE);
     }
 
@@ -142,7 +145,7 @@ public class GestorUsuarios {
      * Permite al conductor ponerse fuera de servicio. Solo se puede poner fuera de servicio si no esta en un viaje.
      * @param usuario usuario que es conductor
      */
-    public synchronized void ponerFueraDeServicio(Usuario usuario) {
+    public void ponerFueraDeServicio(Usuario usuario) {
         cambiarEstado(usuario, EstadoConductor.FUERA_DE_SERVICIO);
     }
 
@@ -157,7 +160,7 @@ public class GestorUsuarios {
         if (actual == EstadoConductor.VIAJE_A_ORIGEN || actual == EstadoConductor.VIAJE_A_DESTINO) {
             throw new EstadoConductorInvalidoException("El conductor esta en un viaje");
         }
-        c.setEstadoConductor(nuevo);
+        c.setEstado(nuevo);
     }
 
     /**
