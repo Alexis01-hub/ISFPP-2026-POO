@@ -7,7 +7,9 @@ import movilidaddigital.modelo.Usuario;
 import movilidaddigital.modelo.Viaje;
 import movilidaddigital.modelo.CalificacionViaje;
 import movilidaddigital.modelo.EstadoConductor;
+import movilidaddigital.modelo.RolUsuario;
 import movilidaddigital.negocio.Alternativa;
+import movilidaddigital.negocio.Despachador;
 import movilidaddigital.negocio.GestorServicios;
 import movilidaddigital.negocio.GestorUsuarios;
 import movilidaddigital.negocio.GestorViajes;
@@ -56,6 +58,7 @@ public class ConsolaUI implements InterfazUsuario {
         Collections.shuffle(conductores);
 
         for (Usuario conductor : conductores) {
+            conductor.cambiarRolActivo(RolUsuario.CONDUCTOR);
             conductor.getConductor().setEstado(EstadoConductor.DISPONIBLE);
         }
 
@@ -82,6 +85,7 @@ public class ConsolaUI implements InterfazUsuario {
 
     private void ejecutarViaje(Usuario cliente, Usuario conductor,
                                Alternativa alternativa, LocalDateTime inicio) {
+        cliente.cambiarRolActivo(RolUsuario.CLIENTE);
         Viaje viaje = gestorViajes.solicitar(cliente, alternativa, inicio);
         gestorViajes.aceptar(viaje, conductor, inicio.plusMinutes(1));
         gestorViajes.iniciar(viaje, inicio.plusMinutes(2));
@@ -98,11 +102,7 @@ public class ConsolaUI implements InterfazUsuario {
     }
 
     private boolean compatible(Usuario usuario, Servicio servicio) {
-        var vehiculo = usuario.getConductor().getVehiculoActivo();
-        return vehiculo.getTipoVehiculo() == servicio.getTipoVehiculo()
-                && vehiculo.getCategoriaVehiculo().getValorNumerico()
-                >= servicio.getCategoriaVehiculo().getValorNumerico()
-                && vehiculo.getTipoServicios().contains(servicio.getTipoServicio());
+        return Despachador.esCompatibleConductor(usuario.getConductor(), servicio);
     }
 
     private Ubicacion ubicacionAleatoria() {

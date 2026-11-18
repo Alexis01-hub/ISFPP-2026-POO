@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import movilidaddigital.modelo.Usuario;
 import movilidaddigital.modelo.RolUsuario;
+import movilidaddigital.modelo.EstadoConductor;
 import movilidaddigital.negocio.GestorServicios;
 import movilidaddigital.negocio.GestorUsuarios;
 import movilidaddigital.negocio.GestorViajes;
@@ -78,6 +79,10 @@ public final class LoginController {
                 errorLabel.setText("Este usuario no está registrado como conductor.");
                 return;
             }
+            if (rol == RolUsuario.CONDUCTOR
+                    && usuario.getConductor().getEstadoConductor() != EstadoConductor.FUERA_DE_SERVICIO) {
+                gestorUsuarios.ponerFueraDeServicio(usuario);
+            }
             usuario.cambiarRolActivo(rol);
             String vista = rol == RolUsuario.CONDUCTOR
                     ? "/ui/javafx/view/PanelConductor.fxml"
@@ -102,7 +107,14 @@ public final class LoginController {
             stage.setScene(new Scene(root, 1100, 760));
             stage.setTitle("Movilidad Digital - Panel de cliente");
         } catch (Exception e) {
-            errorLabel.setText("No se pudo abrir el panel: " + e.getMessage());
+            e.printStackTrace();
+
+            Throwable causa = e;
+            while (causa.getCause() != null) {
+                causa = causa.getCause();
+            }
+
+            errorLabel.setText("No se pudo abrir el panel: " + causa.getMessage());
         }
     }
 

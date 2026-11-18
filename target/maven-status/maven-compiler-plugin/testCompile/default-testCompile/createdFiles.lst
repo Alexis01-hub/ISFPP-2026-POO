@@ -1,4 +1,6 @@
 ServicioCostoTest.class
+GestorServiciosTest.class
 UsuarioRolTest.class
+GestorUsuariosTest.class
 ViajeTest.class
 ClienteEnViajeTest.class

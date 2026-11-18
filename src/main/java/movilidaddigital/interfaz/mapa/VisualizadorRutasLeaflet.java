@@ -36,7 +36,6 @@ public final class VisualizadorRutasLeaflet {
                         + Configuracion.longitudCentroMapa() + ","
                         + Configuracion.zoomMapa() + ")");
                 enviarSeleccionPendiente();
-                enviarDibujoPendiente();
             }
         });
         webView.getEngine().load(recurso.toExternalForm());

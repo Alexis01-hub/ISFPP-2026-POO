@@ -311,7 +311,10 @@ public final class PanelClienteController {
     }
 
     private void error(String mensaje) {
-        resultadoLabel.setText("Error: " + mensaje);
-        estadoLabel.setText("Revisá los datos ingresados.");
+        String detalle = (mensaje == null || mensaje.isBlank())
+                ? "No se pudo completar la operación."
+                : mensaje;
+        resultadoLabel.setText("Error: " + detalle);
+        estadoLabel.setText(detalle);
     }
 }

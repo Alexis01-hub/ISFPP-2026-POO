@@ -234,6 +234,7 @@ public final class PanelConductorController {
     @FXML
     private void volverAlLogin() {
         try {
+            gestorUsuarios.ponerFueraDeServicio(usuario);
             FXMLLoader loader = new FXMLLoader(getClass().getResource(
                     "/ui/javafx/view/Login.fxml"));
             loader.setControllerFactory(type -> type == LoginController.class

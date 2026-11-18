@@ -11,15 +11,22 @@
 <div id="mapa"></div>
 <script>
   const mapa = L.map('mapa').setView([0, 0], 2);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-      {maxZoom: 19, attribution: '&copy; OpenStreetMap'}).addTo(mapa);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(mapa);
   let capa = L.layerGroup().addTo(mapa);
   let modoSeleccion = null;
+  const MAX_DISTANCIA_CALLE_METROS = 1000;
+
   window.configurarCentro = (latitud, longitud, zoom) => {
     mapa.setView([latitud, longitud], zoom);
   };
-  const MAX_DISTANCIA_CALLE_METROS = 1000;
-  window.activarSeleccion = tipo => { modoSeleccion = tipo; };
+
+  window.activarSeleccion = tipo => {
+    modoSeleccion = tipo;
+  };
+
   async function rutaEntre(origen, destino) {
     const url = 'https://router.project-osrm.org/route/v1/driving/'
       + origen[1] + ',' + origen[0] + ';' + destino[1] + ',' + destino[0]
@@ -62,18 +69,17 @@
       alert(error.message);
     }
   };
+
   mapa.on('click', evento => {
-    if (modoSeleccion && window.javaBridge) {
-      const tipo = modoSeleccion;
-      modoSeleccion = null;
-      const punto = [evento.latlng.lat, evento.latlng.lng];
-      validarPunto(punto).then(cercano => {
-        window.javaBridge.seleccionarPunto(tipo, cercano[1], cercano[0]);
-      }).catch(error => {
+    if (!modoSeleccion || !window.javaBridge) return;
+    const tipo = modoSeleccion;
+    modoSeleccion = null;
+    validarPunto([evento.latlng.lat, evento.latlng.lng])
+      .then(cercano => window.javaBridge.seleccionarPunto(tipo, cercano[1], cercano[0]))
+      .catch(error => {
         alert(error.message);
         modoSeleccion = tipo;
       });
-    }
   });
 </script>
 </body>

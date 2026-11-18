@@ -30,6 +30,10 @@ public class Despachador {
      * @return true si el conductor es compatible con el servicio, false en caso contrario
      */
     public boolean esCompatible(Conductor conductor, Servicio servicio) {
+        return esCompatibleConductor(conductor, servicio);
+    }
+
+    public static boolean esCompatibleConductor(Conductor conductor, Servicio servicio) {
         Vehiculo v = conductor.getVehiculoActivo();
         if (v.getTipoVehiculo() != servicio.getTipoVehiculo()) {
             return false;

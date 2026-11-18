@@ -68,6 +68,9 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>movilidaddigital.aplicacion.MainApp</mainClass>
+                    <options>
+                        <option>--add-exports=javafx.graphics/com.sun.javafx.sg.prism.web=ALL-UNNAMED</option>
+                    </options>
                 </configuration>
             </plugin>
         </plugins>

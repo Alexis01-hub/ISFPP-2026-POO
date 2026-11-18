@@ -5,6 +5,7 @@ import movilidaddigital.datastructures.Map;
 import movilidaddigital.modelo.Ubicacion;
 import movilidaddigital.modelo.Usuario;
 import movilidaddigital.modelo.Vehiculo;
+import movilidaddigital.modelo.RolUsuario;
 import movilidaddigital.negocio.Despachador;
 import movilidaddigital.negocio.GestorServicios;
 import movilidaddigital.negocio.GestorUsuarios;
@@ -58,6 +59,7 @@ public final class MainHilos {
         List<Usuario> conductoresCompetidores = new ArrayList<>();
         for (Usuario conductor : conductores) {
             if (despachador.esCompatible(conductor.getConductor(), servicio)) {
+                conductor.cambiarRolActivo(RolUsuario.CONDUCTOR);
                 gestorUsuarios.ponerDisponible(conductor);
                 conductoresCompetidores.add(conductor);
             }
